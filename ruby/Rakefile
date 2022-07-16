@@ -1,0 +1,6 @@
+require "minitest/test_task"
+
+Minitest::TestTask.create do |t|
+  t.test_globs = "./test_*.rb"
+end
+task default: :test
