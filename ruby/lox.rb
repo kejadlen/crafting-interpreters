@@ -107,7 +107,8 @@ module Lox
         when state.scan(/</)  then state.add_token(:LESS)
         when state.scan(/>=/) then state.add_token(:GREATER_EQUAL)
         when state.scan(/>/)  then state.add_token(:GREATER)
-        when state.scan(/\/\/(?~\n)+/) # ignore comment
+        when state.scan(/\/\/(?~\n)+/)       # ignore line comment
+        when state.scan(/\/\*(?~\*\/)\*\//m) # ignore block comment
         when state.scan(/\//) then state.add_token(:SLASH)
         when state.scan(/[ \r\t]/)    # ignore whitespace
         when state.scan(/\n/)         then state.line += 1
@@ -118,7 +119,7 @@ module Lox
         when identifier = state.scan(/[a-zA-Z_]\w+/)
           type = KEYWORDS.fetch(identifier, :IDENTIFIER)
           state.add_token(type)
-        else
+        else state.scan(/./) # keep scanning
           state.errors << Error.new(line: state.line, message: "Unexpected character.")
         end
       end

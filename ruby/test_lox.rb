@@ -99,4 +99,17 @@ class TestScanner < Minitest::Test
       Lox::Token.new(:IDENTIFIER, "orchid", nil, 1),
     ], @scanner.scan("or orchid")
   end
+
+  def test_block_comments
+    tokens = @scanner.scan(<<~SRC)
+      foo
+      /* here lies a block comment */
+      bar
+    SRC
+
+    assert_equal [
+      Lox::Token.new(:IDENTIFIER, "foo", nil, 1),
+      Lox::Token.new(:IDENTIFIER, "bar", nil, 3),
+    ], tokens
+  end
 end
