@@ -1,4 +1,5 @@
 require "lox"
+include Lox
 
 require "open3"
 
@@ -22,8 +23,8 @@ class TestRunner < Minitest::Test
   end
 
   def test_returns_tokens
-    scanner = Mocktail.of(Lox::Scanner)
-    runner = Lox::Runner.new(scanner:)
+    scanner = Mocktail.of(Scanner)
+    runner = Runner.new(scanner:)
     stubs { scanner.scan("src") }.with { %w[ some tokens ] }
 
     tokens = runner.run("src")
@@ -34,7 +35,7 @@ end
 
 class TestScanner < Minitest::Test
   def setup
-    @scanner = Lox::Scanner.new
+    @scanner = Scanner.new
   end
 
   def test_basic_tokens
@@ -81,36 +82,36 @@ class TestScanner < Minitest::Test
 
   def test_strings
     assert_equal [
-      Lox::Token.new(:STRING, '""', "", 1),
-      Lox::Token.new(:EOF, "", nil, 1),
+      Token.new(:STRING, '""', "", 1),
+      Token.new(:EOF, "", nil, 1),
     ], @scanner.scan('""')
 
-    assert_equal [Lox::Token.new(:EOF, "", nil, 1)], @scanner.scan('"') # TODO test the error once it's exposed
+    assert_equal [Token.new(:EOF, "", nil, 1)], @scanner.scan('"') # TODO test the error once it's exposed
 
     assert_equal [
-      Lox::Token.new(:STRING, '"foo"', "foo", 1),
-      Lox::Token.new(:EOF, "", nil, 1),
+      Token.new(:STRING, '"foo"', "foo", 1),
+      Token.new(:EOF, "", nil, 1),
     ], @scanner.scan('"foo"')
 
     assert_equal [
-      Lox::Token.new(:STRING, "\"foo\nbar\"", "foo\nbar", 2),
-      Lox::Token.new(:EOF, "", nil, 2),
+      Token.new(:STRING, "\"foo\nbar\"", "foo\nbar", 2),
+      Token.new(:EOF, "", nil, 2),
     ], @scanner.scan("\"foo\nbar\"")
   end
 
   def test_numbers
     assert_equal [
-      Lox::Token.new(:NUMBER, "123", 123.0, 1),
-      Lox::Token.new(:NUMBER, "123.4", 123.4, 1),
-      Lox::Token.new(:EOF, "", nil, 1),
+      Token.new(:NUMBER, "123", 123.0, 1),
+      Token.new(:NUMBER, "123.4", 123.4, 1),
+      Token.new(:EOF, "", nil, 1),
     ], @scanner.scan("123 123.4")
   end
 
   def test_identifiers
     assert_equal [
-      Lox::Token.new(:OR, "or", nil, 1),
-      Lox::Token.new(:IDENTIFIER, "orchid", nil, 1),
-      Lox::Token.new(:EOF, "", nil, 1),
+      Token.new(:OR, "or", nil, 1),
+      Token.new(:IDENTIFIER, "orchid", nil, 1),
+      Token.new(:EOF, "", nil, 1),
     ], @scanner.scan("or orchid")
   end
 
@@ -123,11 +124,11 @@ class TestScanner < Minitest::Test
     SRC
 
     assert_equal [
-      Lox::Token.new(:IDENTIFIER, "foo", nil, 1),
-      Lox::Token.new(:IDENTIFIER, "bar", nil, 4),
-      Lox::Token.new(:EOF, "", nil, 5),
+      Token.new(:IDENTIFIER, "foo", nil, 1),
+      Token.new(:IDENTIFIER, "bar", nil, 4),
+      Token.new(:EOF, "", nil, 5),
     ], tokens
 
-    assert_equal [Lox::Token.new(:EOF, "", nil, 1)], @scanner.scan("/*")
+    assert_equal [Token.new(:EOF, "", nil, 1)], @scanner.scan("/*")
   end
 end
