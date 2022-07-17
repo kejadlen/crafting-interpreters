@@ -1,8 +1,14 @@
 #!/usr/bin/env ruby -w
 
 module Lox
-  class << self
-    @had_error = false
+  class Error < StandardError
+    def initialize(line:, where: "", message:)
+      @line, @where, @message = line, where, message
+    end
+
+    def to_s
+      "[line #@line] Error#@where: #@message"
+    end
   end
 
   def self.run_prompt
@@ -10,33 +16,42 @@ module Lox
       print "> "
       line = gets
       break if line.empty?
-      run(line)
-      @had_error = false
+      begin
+        run(line)
+      rescue Error => e
+        puts e.message
+      end
     end
   end
 
   def self.run_file(io)
     run(io.read)
-
-    exit 65 if @had_error
+  rescue Error
+    puts e.message
+    exit 65
   end
 
   def self.run(src)
-    scanner = Scanner.new(src)
-    tokens = scanner.scan()
-
-    tokens.each do |token|
-      puts token
-    end
+    Runner.new(src).run
   end
 
   def self.error(line, msg)
-    report(line, "", msg)
+    raise Error(line:, message:)
   end
 
-  def self.report(line, where, message)
-    puts "[line #{line}] Error#{where}: #{message}"
-    @had_error = true;
+  class Runner
+    def initialize(scanner:)
+      @scanner = scanner
+    end
+
+    def run(src)
+      @scanner.scan(src)
+    end
+  end
+
+  class Scanner
+    def scan(src)
+    end
   end
 end
 
