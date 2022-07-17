@@ -108,7 +108,8 @@ module Lox
         when state.scan(/>=/) then state.add_token(:GREATER_EQUAL)
         when state.scan(/>/)  then state.add_token(:GREATER)
         when state.scan(/\/\/(?~\n)+/)       # ignore line comment
-        when state.scan(/\/\*(?~\*\/)\*\//m) # ignore block comment
+        when state.scan(/\/\*/)
+          scan_block_comment(state)
         when state.scan(/\//) then state.add_token(:SLASH)
         when state.scan(/[ \r\t]/)    # ignore whitespace
         when state.scan(/\n/)         then state.line += 1
@@ -145,6 +146,26 @@ module Lox
           return
         when c = state.scan(/./)
           text << c
+        else
+          fail "unreachable!"
+        end
+      end
+    end
+
+    def scan_block_comment(state)
+      loop do
+        case
+        when state.scan(/\/\*/)
+          scan_block_comment(state)
+        when state.scan(/\*\//)
+          return
+        when state.scan(/\n/)
+          state.line += 1
+        when state.eos?
+          state.errors << Error.new(line: state.line, message: "Unterminated block comment.")
+          return
+        when c = state.scan(/./)
+          # no-op
         else
           fail "unreachable!"
         end

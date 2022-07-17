@@ -103,13 +103,16 @@ class TestScanner < Minitest::Test
   def test_block_comments
     tokens = @scanner.scan(<<~SRC)
       foo
-      /* here lies a block comment */
+      /* here lies a /* nested */ block comment
+      with newlines */
       bar
     SRC
 
     assert_equal [
       Lox::Token.new(:IDENTIFIER, "foo", nil, 1),
-      Lox::Token.new(:IDENTIFIER, "bar", nil, 3),
+      Lox::Token.new(:IDENTIFIER, "bar", nil, 4),
     ], tokens
+
+    assert_equal [], @scanner.scan("/*")
   end
 end
