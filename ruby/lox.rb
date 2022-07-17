@@ -125,6 +125,7 @@ module Lox
         end
       end
 
+      state.add_token(:EOF, text: "")
       state.tokens
     end
 
