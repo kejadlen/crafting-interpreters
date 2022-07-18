@@ -54,24 +54,47 @@ module Lox
   end
 
   class Scanner
-    KEYWORDS = {
-      and:    :AND,
-      class:  :CLASS,
-      else:   :ELSE,
-      false:  :FALSE,
-      for:    :FOR,
-      fun:    :FUN,
-      if:     :IF,
-      nil:    :NIL,
-      or:     :OR,
-      print:  :PRINT,
-      return: :RETURN,
-      super:  :SUPER,
-      this:   :THIS,
-      true:   :TRUE,
-      var:    :VAR,
-      while:  :WHILE,
-    }.transform_keys(&:to_s)
+    TOKENS = %w[
+      (  LEFT_PAREN
+      )  RIGHT_PAREN
+      {  LEFT_BRACE
+      }  RIGHT_BRACE
+      ,  COMMA
+      .  DOT
+      -  MINUS
+      +  PLUS
+      ;  SEMICOLON
+      *  STAR
+      != BANG_EQUAL
+      !  BANG
+      == EQUAL_EQUAL
+      =  EQUAL
+      <= LESS_EQUAL
+      <  LESS
+      >= GREATER_EQUAL
+      >  GREATER
+      /  SLASH
+    ].each_slice(2).to_h {|k,v| [k, v.to_sym] }
+    TOKENS_RE = Regexp.union(TOKENS.keys)
+
+    KEYWORDS = %w[
+      and    AND
+      class  CLASS
+      else   ELSE
+      false  FALSE
+      for    FOR
+      fun    FUN
+      if     IF
+      nil    NIL
+      or     OR
+      print  PRINT
+      return RETURN
+      super  SUPER
+      this   THIS
+      true   TRUE
+      var    VAR
+      while  WHILE
+    ].each_slice(2).to_h.transform_values(&:to_sym)
 
     State = Struct.new(:ss, :tokens, :errors, :line) do
       def eos? = ss.eos?
@@ -89,30 +112,14 @@ module Lox
 
       until state.eos?
         case
-        when state.scan(/\(/) then state.add_token(:LEFT_PAREN)
-        when state.scan(/\)/) then state.add_token(:RIGHT_PAREN)
-        when state.scan(/\{/) then state.add_token(:LEFT_BRACE)
-        when state.scan(/}/)  then state.add_token(:RIGHT_BRACE)
-        when state.scan(/,/)  then state.add_token(:COMMA)
-        when state.scan(/\./) then state.add_token(:DOT)
-        when state.scan(/-/)  then state.add_token(:MINUS)
-        when state.scan(/\+/) then state.add_token(:PLUS)
-        when state.scan(/;/)  then state.add_token(:SEMICOLON)
-        when state.scan(/\*/) then state.add_token(:STAR)
-        when state.scan(/!=/) then state.add_token(:BANG_EQUAL)
-        when state.scan(/!/)  then state.add_token(:BANG)
-        when state.scan(/==/) then state.add_token(:EQUAL_EQUAL)
-        when state.scan(/=/)  then state.add_token(:EQUAL)
-        when state.scan(/<=/) then state.add_token(:LESS_EQUAL)
-        when state.scan(/</)  then state.add_token(:LESS)
-        when state.scan(/>=/) then state.add_token(:GREATER_EQUAL)
-        when state.scan(/>/)  then state.add_token(:GREATER)
-        when state.scan(/\/\/(?~\n)+/)       # ignore line comment
+        when state.scan(/\/\/(?~\n)/)       # ignore line comment
         when state.scan(/\/\*/)
           scan_block_comment(state)
-        when state.scan(/\//) then state.add_token(:SLASH)
+        when matched = state.scan(TOKENS_RE)
+          state.add_token(TOKENS.fetch(matched))
         when state.scan(/[ \r\t]/)    # ignore whitespace
-        when state.scan(/\n/)         then state.line += 1
+        when state.scan(/\n/)
+          state.line += 1
         when state.scan(/"/)
           scan_str(state)
         when number = state.scan(/\d+(\.\d+)?/)
@@ -145,7 +152,7 @@ module Lox
         when state.eos?
           state.errors << Error.new(line: state.line, message: "Unterminated string.")
           return
-        when c = state.scan(/./)
+        when c = state.scan(/(?~"|\n)/)
           text << c
         else
           fail "unreachable!"
@@ -165,7 +172,7 @@ module Lox
         when state.eos?
           state.errors << Error.new(line: state.line, message: "Unterminated block comment.")
           return
-        when c = state.scan(/./)
+        when state.scan(/./)
           # no-op
         else
           fail "unreachable!"

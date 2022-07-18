@@ -65,7 +65,7 @@ class TestScanner < Minitest::Test
   def test_comments_and_whitespace
     tokens = @scanner.scan(<<~SRC)
       (\t) // here lies a comment
-      .
+      . //
     SRC
 
     assert_equal %i[LEFT_PAREN RIGHT_PAREN DOT EOF], tokens.map(&:type)
