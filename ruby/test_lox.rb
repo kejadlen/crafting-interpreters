@@ -111,8 +111,9 @@ class TestScanner < Minitest::Test
     assert_equal [
       Token.new(:OR, "or", nil, 1),
       Token.new(:IDENTIFIER, "orchid", nil, 1),
+      Token.new(:IDENTIFIER, "o", nil, 1),
       Token.new(:EOF, "", nil, 1),
-    ], @scanner.scan("or orchid")
+    ], @scanner.scan("or orchid o")
   end
 
   def test_block_comments

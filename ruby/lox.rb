@@ -117,7 +117,7 @@ module Lox
           scan_str(state)
         when number = state.scan(/\d+(\.\d+)?/)
           state.add_token(:NUMBER, literal: number.to_f)
-        when identifier = state.scan(/[a-zA-Z_]\w+/)
+        when identifier = state.scan(/[a-zA-Z_]\w*/)
           type = KEYWORDS.fetch(identifier, :IDENTIFIER)
           state.add_token(type)
         else state.scan(/./) # keep scanning
