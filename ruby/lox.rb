@@ -74,7 +74,7 @@ module Lox
       >= GREATER_EQUAL
       >  GREATER
       /  SLASH
-    ].each_slice(2).to_h {|k,v| [k, v.to_sym] }
+    ].each_slice(2).to_h.transform_values(&:to_sym)
     TOKENS_RE = Regexp.union(TOKENS.keys)
 
     KEYWORDS = %w[
