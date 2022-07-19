@@ -96,10 +96,14 @@ module Lox
       while  WHILE
     ].each_slice(2).to_h.transform_values(&:to_sym)
 
-    State = Struct.new(:ss, :tokens, :errors, :line) do
+    class State < Struct.new(:ss, :tokens, :errors, :line)
       def eos? = ss.eos?
       def scan(re) = ss.scan(re)
       def pos = ss.pos
+
+      def initialize(src)
+        super(StringScanner.new(src), [], [], 1)
+      end
 
       def add_token(type, text: nil, literal: nil)
         text ||= ss.matched
@@ -108,7 +112,7 @@ module Lox
     end
 
     def scan(src)
-      state = State.new(StringScanner.new(src), [], [], 1)
+      state = State.new(src)
 
       until state.eos?
         case
@@ -134,6 +138,8 @@ module Lox
           state.scan(/./) # keep scanning
         end
       end
+
+      fail unless state.errors.empty?
 
       state.add_token(:EOF, text: "")
       state.tokens

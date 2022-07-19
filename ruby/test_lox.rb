@@ -86,7 +86,9 @@ class TestScanner < Minitest::Test
       Token.new(:EOF, "", nil, 1),
     ], @scanner.scan('""')
 
-    assert_equal [Token.new(:EOF, "", nil, 1)], @scanner.scan('"') # TODO test the error once it's exposed
+    assert_raises do
+      @scanner.scan('"')
+    end
 
     assert_equal [
       Token.new(:STRING, '"foo"', "foo", 1),
@@ -130,6 +132,8 @@ class TestScanner < Minitest::Test
       Token.new(:EOF, "", nil, 5),
     ], tokens
 
-    assert_equal [Token.new(:EOF, "", nil, 1)], @scanner.scan("/*")
+    assert_raises do
+      @scanner.scan("/*")
+    end
   end
 end
