@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby -w
+
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+
+require "lox"
+
+def run_prompt
+  loop do
+    print "> "
+    line = gets
+    break if line.nil? || line.empty?
+    begin
+      run(line)
+    rescue Lox::Error => e
+      puts e.message
+    end
+  end
+end
+
+def run_file(io)
+  run(io.read)
+rescue Lox::Error => e
+  puts e.message
+  exit 65
+end
+
+def run(src)
+  Lox::Runner.new.run(src)
+end
+
+
+if __FILE__ == $0
+  puts "Usage: #$0 [script]" or exit 64 if ARGV.length > 1
+
+  if ARGV.empty?
+    run_prompt
+  else
+    run_file(ARGF)
+  end
+end

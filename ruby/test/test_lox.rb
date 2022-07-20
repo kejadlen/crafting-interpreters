@@ -9,9 +9,10 @@ require "pry"
 
 class TestLox < Minitest::Test
   def test_error_on_more_than_one_arg
-    o, s = Open3.capture2("./lox.rb foo bar")
+    lox_path = File.expand_path("../bin/lox", __dir__)
+    o, s = Open3.capture2(lox_path, "foo", "bar")
     assert_equal 64, s.exitstatus
-    assert_equal "Usage: ./lox.rb [script]\n", o
+    assert_equal "Usage: #{lox_path} [script]\n", o
   end
 end
 

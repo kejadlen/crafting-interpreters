@@ -13,30 +13,6 @@ module Lox
     end
   end
 
-  def self.run_prompt
-    loop do
-      print "> "
-      line = gets
-      break if line.empty?
-      begin
-        run(line)
-      rescue Error => e
-        puts e.message
-      end
-    end
-  end
-
-  def self.run_file(io)
-    run(io.read)
-  rescue Error
-    puts e.message
-    exit 65
-  end
-
-  def self.run(src)
-    Runner.new.run(src)
-  end
-
   def self.error(line, msg)
     raise Error(line:, message:)
   end
@@ -227,15 +203,5 @@ module Lox
     def parenthesize(name, *exprs)
       "(#{name} #{exprs.map {|expr| expr.accept(self) }.join(" ")})"
     end
-  end
-end
-
-if __FILE__ == $0
-  puts "Usage: #$0 [script]" or exit 64 if ARGV.length > 1
-
-  if ARGV.empty?
-    Lox.run_prompt
-  else
-    Lox.run_file(ARGF)
   end
 end
