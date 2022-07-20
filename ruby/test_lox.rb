@@ -137,3 +137,20 @@ class TestScanner < Minitest::Test
     end
   end
 end
+
+class TestAstPrinter < Minitest::Test
+  def test_ast_printer
+    expr = Expr::Binary.new(
+      Expr::Unary.new(
+        Token.new(:MINUS, ?-, nil, 1),
+        Expr::Literal.new(123),
+      ),
+      Token.new(:STAR, ?*, nil, 1),
+      Expr::Grouping.new(
+        Expr::Literal.new(45.67),
+      ),
+    )
+
+    assert_equal "(* (- 123) (group 45.67))", AstPrinter.new.print(expr)
+  end
+end

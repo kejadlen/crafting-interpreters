@@ -195,6 +195,39 @@ module Lox
       "#{type} #{lexeme} #{literal}"
     end
   end
+
+  module Expr
+    Binary = Struct.new(:left, :op, :right) do
+      def accept(visitor) = visitor.visit_binary(self)
+    end
+
+    Grouping = Struct.new(:expr) do
+      def accept(visitor) = visitor.visit_grouping(self)
+    end
+
+    Literal = Struct.new(:value) do
+      def accept(visitor) = visitor.visit_literal(self)
+    end
+
+    Unary = Struct.new(:op, :right) do
+      def accept(visitor) = visitor.visit_unary(self)
+    end
+  end
+
+  class AstPrinter
+    def print(expr) = expr.accept(self)
+
+    def visit_binary(expr) = parenthesize(expr.op.lexeme, expr.left, expr.right)
+    def visit_grouping(expr) = parenthesize("group", expr.expr)
+    def visit_literal(expr) = expr.value&.to_s || "nil"
+    def visit_unary(expr) = parenthesize(expr.op.lexeme, expr.right)
+
+    private
+
+    def parenthesize(name, *exprs)
+      "(#{name} #{exprs.map {|expr| expr.accept(self) }.join(" ")})"
+    end
+  end
 end
 
 if __FILE__ == $0
