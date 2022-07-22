@@ -1,11 +1,10 @@
 module Lox
   class Error < StandardError
-    def initialize(line:, where: "", message:)
-      @line, @where, @message = line, where, message
-    end
+    def initialize(line, where="", message)
+      error = "Error"
+      error << " #{where}" unless where.empty?
 
-    def to_s
-      "[line #@line] Error#@where: #@message"
+      super("[line #{line}] #{error}: #{message}")
     end
   end
 end

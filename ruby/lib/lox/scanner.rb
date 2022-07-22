@@ -1,5 +1,6 @@
 require "strscan"
 
+require_relative "error"
 require_relative "token"
 
 module Lox

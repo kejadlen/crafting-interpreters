@@ -2,3 +2,12 @@ require "minitest/test_task"
 
 Minitest::TestTask.create
 task default: :test
+
+namespace :test do
+  desc "Run tests on source changes"
+  task :watch do
+    loop do
+      sh "fd .*.rb | entr -d rake test:isolated"
+    end
+  end
+end

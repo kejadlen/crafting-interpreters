@@ -22,14 +22,16 @@ class TestRunner < Lox::Test
     Mocktail.reset
   end
 
-  def test_returns_tokens
+  # This test sucks, but we'll live with it just not
+  # exploding our runner for now.
+  def test_prints
     scanner = Mocktail.of(Lox::Scanner)
-    runner = Lox::Runner.new(scanner:)
+    parser = Mocktail.of(Lox::Parser)
+    runner = Lox::Runner.new(scanner, parser)
     stubs { scanner.scan("src") }.with { %w[ some tokens ] }
+    stubs { parser.parse(%w[ some tokens ]) }.with { Lox::Expr::Literal.new("foo") }
 
-    tokens = runner.run("src")
-
-    assert_equal %w[ some tokens ], tokens
+    runner.run("src")
   end
 end
 
