@@ -34,4 +34,3 @@ class TestRunner < Lox::Test
     runner.run("src")
   end
 end
-
