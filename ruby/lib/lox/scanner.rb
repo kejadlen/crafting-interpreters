@@ -90,6 +90,7 @@ module Lox
         end
       end
 
+      # TODO
       fail unless state.errors.empty?
 
       state.add_token(:EOF, text: "")

@@ -2,14 +2,6 @@ require_relative "error"
 require_relative "expr"
 
 module Lox
-  class ParseError < Error
-    def initialize(token, message)
-      at = token.type == :EOF ? "end" : "'#{token.lexeme}'"
-
-      super(token.line, "at #{at}", message)
-    end
-  end
-
   class Parser
     class State < Struct.new(:tokens, :current)
       def initialize(tokens)
@@ -136,7 +128,7 @@ module Lox
     # that feels weird so let's move that error handling up the
     # stack for now.
     def parse(tokens)
-      state = State.new(tokens, 0)
+      state = State.new(tokens)
       state.expression
     end
   end

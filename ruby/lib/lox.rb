@@ -3,23 +3,25 @@
 require_relative "lox/ast_printer"
 require_relative "lox/error"
 require_relative "lox/expr"
+require_relative "lox/interpreter"
 require_relative "lox/parser"
 require_relative "lox/scanner"
 require_relative "lox/token"
 
 module Lox
   class Runner
-    def initialize(scanner=Scanner.new, parser=Parser.new)
-      @scanner, @parser = scanner, parser
+    def initialize
+      @scanner = Scanner.new
+      @parser = Parser.new
+      @interpreter = Interpreter.new
     end
 
     def run(src)
       tokens = @scanner.scan(src)
       expr = @parser.parse(tokens)
+      value = @interpreter.interpret(expr)
 
-      puts AstPrinter.new.print(expr)
-    rescue ParseError => e
-      puts e.message
+      puts value
     end
   end
 end

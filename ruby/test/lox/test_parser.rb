@@ -9,7 +9,6 @@ class TestParser < Lox::Test
   def setup
     @ast_printer = Lox::AstPrinter.new
     @scanner = Lox::Scanner.new
-    @parser = Lox::Parser.new
   end
 
   def test_expression
