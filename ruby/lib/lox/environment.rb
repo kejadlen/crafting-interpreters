@@ -2,7 +2,8 @@ require_relative "error"
 
 module Lox
   class Environment
-    def initialize
+    def initialize(enclosing = nil)
+      @enclosing = enclosing
       @values = {}
     end
 
@@ -13,13 +14,27 @@ module Lox
     def get(token)
       name = token.lexeme
 
-      @values.fetch(name) { raise RuntimeError.new(token, "Undefined variable '#{name}'.") }
+      @values.fetch(name) {
+        raise RuntimeError.new(token, "Undefined variable '#{name}'.") if @enclosing.nil?
+
+        @enclosing.get(token)
+      }
     end
 
     def assign(name, value)
-      raise RuntimeError.new(name, "Undefined variable '#{name.lexeme}'.") unless @values.has_key?(name.lexeme)
+      lexeme = name.lexeme
 
-      @values[name.lexeme] = value
+      if @values.has_key?(lexeme)
+        @values[lexeme] = value
+        return
+      end
+
+      unless @enclosing.nil?
+        @enclosing.assign(name, value)
+        return
+      end
+
+      raise RuntimeError.new(name, "Undefined variable '#{lexeme}'.")
     end
   end
 end
