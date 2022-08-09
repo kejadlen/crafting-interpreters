@@ -11,11 +11,28 @@ module Lox
     # we're going to do it in the runner instead.
     def interpret(stmts)
       stmts.each do |stmt|
-        evaluate(stmt)
+        execute(stmt)
       end
     end
 
-    def evaluate(stmt) = stmt.accept(self)
+    def evaluate(expr) = expr.accept(self)
+    def execute(stmt) = stmt.accept(self)
+
+    def visit_block(stmt)
+      execute_block(stmt.stmts, Environment.new(@env))
+      nil
+    end
+
+    def execute_block(stmts, env)
+      prev_env = @env
+      @env = env
+
+      stmts.each do |stmt|
+        execute(stmt)
+      end
+    ensure
+      @env = prev_env
+    end
 
     def visit_expr(expr)
       evaluate(expr.expr)

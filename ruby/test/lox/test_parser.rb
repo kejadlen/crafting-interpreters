@@ -60,6 +60,15 @@ class TestParser < Lox::Test
     assert_parsed "(print (assign foo 42.0))", :declaration, "print foo = 42.0;"
   end
 
+  def test_block
+    assert_parsed "(block (var foo bar) (print (var foo)))", :statement, <<~SRC
+      {
+        var foo = "bar";
+        print foo;
+      }
+    SRC
+  end
+
   private
 
   def assert_parsed(expected, name, src)

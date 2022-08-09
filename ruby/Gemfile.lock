@@ -8,6 +8,9 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     rake (13.0.6)
+    rbs (2.6.0)
+    typeprof (0.21.3)
+      rbs (>= 1.8.1)
 
 PLATFORMS
   arm64-darwin-21
@@ -16,6 +19,7 @@ DEPENDENCIES
   minitest
   pry
   rake
+  typeprof
 
 BUNDLED WITH
    2.3.18

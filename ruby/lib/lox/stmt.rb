@@ -2,6 +2,10 @@ require_relative "visitable"
 
 module Lox
   module Stmt
+    Block = Struct.new(:stmts) do
+      include Visitable
+    end
+
     Expr = Struct.new(:expr) do
       include Visitable
     end

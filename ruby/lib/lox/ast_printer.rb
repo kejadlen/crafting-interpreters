@@ -22,6 +22,10 @@ module Lox
       parenthesize("assign #{expr.name.lexeme}", expr.value)
     end
 
+    def visit_block(expr)
+      parenthesize("block", *expr.stmts)
+    end
+
     private
 
     def parenthesize(name, *exprs)
