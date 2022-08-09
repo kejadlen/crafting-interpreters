@@ -56,7 +56,7 @@ class TestParser < Lox::Test
 
   def parse(src, name)
     tokens = @scanner.scan(src)
-    Lox::Parser::State.new(tokens).send(name)
+    Lox::Parser.new(tokens).send(name)
   end
 
   def assert_parsed(expected, name, src)

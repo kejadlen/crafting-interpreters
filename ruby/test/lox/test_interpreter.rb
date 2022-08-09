@@ -7,62 +7,61 @@ require "lox/scanner"
 class TestInterpreter < Lox::Test
   def setup
     @scanner = Lox::Scanner.new
-    @parser = Lox::Parser.new
     @interpreter = Lox::Interpreter.new
   end
 
-  def test_literal
-    assert_interpreted(42.0, "42")
-  end
+  # def test_literal
+  #   assert_evaluated(42.0, "42")
+  # end
 
   def test_grouping
-    assert_interpreted(42.0, "(42)")
+    assert_evaluated "42", "(42)"
   end
 
   def test_unary
-    assert_interpreted(-42.0, "-42")
-    assert_interpreted(false, "!42")
-    assert_interpreted(false, "!true")
-    assert_interpreted(true, "!false")
-    assert_interpreted(true, "!nil")
+    assert_evaluated "-42", "-42"
+    assert_evaluated "false", "!42"
+    assert_evaluated "false", "!true"
+    assert_evaluated "true", "!false"
+    assert_evaluated "true", "!nil"
   end
 
   def test_binary
-    assert_interpreted(42.0, "100 - 58")
-    assert_interpreted(42.0, "84 / 2")
-    assert_interpreted(42.0, "21 * 2")
+    assert_evaluated "42", "100 - 58"
+    assert_evaluated "42", "84 / 2"
+    assert_evaluated "42", "21 * 2"
 
     # precedence
-    assert_interpreted(42.0, "2 * 25 - 8")
+    assert_evaluated "42", "2 * 25 - 8"
 
-    assert_interpreted(42.0, "40 + 2")
-    assert_interpreted("42", "\"4\" + \"2\"")
+    assert_evaluated "42", "40 + 2"
+    assert_evaluated "42", "\"4\" + \"2\""
 
-    assert_interpreted(true, "1 > 0")
-    assert_interpreted(false, "0 > 0")
-    assert_interpreted(false, "0 > 1")
+    assert_evaluated "true", "1 > 0"
+    assert_evaluated "false", "0 > 0"
+    assert_evaluated "false", "0 > 1"
 
-    assert_interpreted(true, "1 >= 0")
-    assert_interpreted(true, "0 >= 0")
-    assert_interpreted(false, "0 >= 1")
+    assert_evaluated "true", "1 >= 0"
+    assert_evaluated "true", "0 >= 0"
+    assert_evaluated "false", "0 >= 1"
 
-    assert_interpreted(false, "1 < 0")
-    assert_interpreted(false, "0 < 0")
-    assert_interpreted(true, "0 < 1")
+    assert_evaluated "false", "1 < 0"
+    assert_evaluated "false", "0 < 0"
+    assert_evaluated "true", "0 < 1"
 
-    assert_interpreted(false, "1 <= 0")
-    assert_interpreted(true, "0 <= 0")
-    assert_interpreted(true, "0 <= 1")
+    assert_evaluated "false", "1 <= 0"
+    assert_evaluated "true", "0 <= 0"
+    assert_evaluated "true", "0 <= 1"
 
-    assert_interpreted(true, "0 != 1")
-    assert_interpreted(false, "0 != 0")
-    assert_interpreted(false, "nil != nil")
-    assert_interpreted(true, "nil != 1")
+    assert_evaluated "true", "0 != 1"
+    assert_evaluated "false", "0 != 0"
+    assert_evaluated "false", "nil != nil"
+    assert_evaluated "true", "nil != 1"
 
-    assert_interpreted(false, "0 == 1")
-    assert_interpreted(true, "0 == 0")
-    assert_interpreted(true, "nil == nil")
-    assert_interpreted(false, "nil == 1")
+    assert_evaluated "false", "0 == 1"
+    assert_evaluated "true", "0 == 0"
+    assert_evaluated "true", "nil == nil"
+    assert_evaluated "false", "nil == 1"
   end
 
   def test_errors
@@ -74,31 +73,53 @@ class TestInterpreter < Lox::Test
       "false + 23",
     ].each do |src|
       assert_raises Lox::RuntimeError do
-        evaluate(src)
+        assert_evaluated nil, src
       end
     end
   end
 
   def test_stringify
-    assert_equal "nil", interpret("nil")
-    assert_equal "42", interpret("42")
-    assert_equal "42.1", interpret("42.1")
-    assert_equal "foo", interpret("\"foo\"")
+    assert_evaluated "nil", "nil"
+    assert_evaluated "42", "42"
+    assert_evaluated "42.1", "42.1"
+    assert_evaluated "foo", "\"foo\""
+  end
+
+  def test_multiple_statements
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      one
+      true
+      3
+    EXPECTED
+      print "one";
+      print true;
+      print 2 + 1;
+    SRC
   end
 
   private
 
-  def evaluate(src)
-    expr = @parser.parse(@scanner.scan(src))
-    @interpreter.evaluate(expr)
-  end
-
-  def interpret(src)
-    expr = @parser.parse(@scanner.scan(src))
-    @interpreter.interpret(expr)
-  end
-
   def assert_interpreted(expected, src)
-    assert_equal expected, evaluate(src)
+    output = with_stdout {
+      stmts = Lox::Parser.new(@scanner.scan(src)).parse!
+      @interpreter.interpret(stmts)
+    }
+    assert_equal expected, output
   end
+
+  def assert_evaluated(expected, src)
+    assert_interpreted(expected, "print #{src};")
+  end
+
+  def with_stdout
+    original = $stdout
+    $stdout = StringIO.new
+
+    yield
+
+    output = $stdout.string.chomp
+    $stdout = original
+    output
+  end
+
 end

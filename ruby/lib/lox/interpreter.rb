@@ -1,14 +1,24 @@
 module Lox
   class Interpreter
-
     # The book does printing and error catching here, but
     # we're going to do it in the runner instead.
-    def interpret(expr)
-      value = evaluate(expr)
-      stringify(value)
+    def interpret(stmts)
+      stmts.each do |stmt|
+        evaluate(stmt)
+      end
     end
 
-    def evaluate(expr) = expr.accept(self)
+    def evaluate(stmt) = stmt.accept(self)
+
+    def visit_expr(expr)
+      evaluate(expr.expr)
+      nil
+    end
+
+    def visit_print(expr)
+      puts stringify(evaluate(expr.expr))
+      nil
+    end
 
     def visit_grouping(expr) = evaluate(expr.expr)
     def visit_literal(expr)  = expr.value
