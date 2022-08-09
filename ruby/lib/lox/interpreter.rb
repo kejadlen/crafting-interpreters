@@ -52,6 +52,12 @@ module Lox
       @env.get(expr.name)
     end
 
+    def visit_assign(expr)
+      value = evaluate(expr.value)
+      @env.assign(expr.name, value)
+      value
+    end
+
     def visit_binary(expr)
       left = evaluate(expr.left)
       right = evaluate(expr.right)

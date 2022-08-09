@@ -63,13 +63,13 @@ module Lox
 
         raise ParseError.new(eq, "Invalid assignment target.") unless expr.instance_of?(Expr::Variable)
 
-        Expr::Assign.new(expr.name, value)
+        return Expr::Assign.new(expr.name, value)
       end
 
       expr
     end
 
-    def expression = equality
+    def expression = assignment
 
     def equality
       expr = comparison

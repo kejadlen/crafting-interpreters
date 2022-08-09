@@ -10,17 +10,24 @@ module Lox
     def visit_print(expr)    = parenthesize("print", expr.expr)
 
     def visit_var(expr)
-      if init = expr.initializer
-        "(assign #{expr.name.lexeme} #{expr.initializer.value})"
-      else
-        "(var #{expr.name.lexeme})"
-      end
+      exprs = [expr.initializer].reject(&:nil?)
+      parenthesize("var #{expr.name.lexeme}", *exprs)
+    end
+
+    def visit_variable(expr)
+      "(var #{expr.name.lexeme})"
+    end
+
+    def visit_assign(expr)
+      parenthesize("assign #{expr.name.lexeme}", expr.value)
     end
 
     private
 
     def parenthesize(name, *exprs)
-      "(#{name} #{exprs.map {|expr| expr.accept(self) }.join(" ")})"
+      inside = [name]
+      inside.concat(exprs.map {|expr| expr.accept(self) })
+      "(#{inside.join(" ")})"
     end
   end
 end
