@@ -17,5 +17,9 @@ module Lox
     Unary = Struct.new(:op, :right) do
       include Visitable
     end
+
+    Variable = Struct.new(:name) do
+      include Visitable
+    end
   end
 end

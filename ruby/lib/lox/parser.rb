@@ -13,17 +13,33 @@ module Lox
     def parse!
       statements = []
       until eot?
-        statements << statement
+        statements << declaration
       end
       statements
     end
 
     private
 
+    def declaration
+      return var_declaration if match?(:VAR)
+
+      statement
+    rescue ParseError
+      synchronize!
+    end
+
+    def var_declaration
+      name = consume!(:IDENTIFIER, "Expect variable name.")
+      initializer = match?(:EQUAL) ? expression : nil
+      consume!(:SEMICOLON, "Expect ';' after variable declaration.")
+
+      Stmt::Var.new(name, initializer)
+    end
+
     def statement
       return print if match?(:PRINT)
 
-      expressionStmt
+      expression_stmt
     end
 
     def print
@@ -32,7 +48,7 @@ module Lox
       Stmt::Print.new(value)
     end
 
-    def expressionStmt
+    def expression_stmt
       value = expression
       consume!(:SEMICOLON, "Expect ';' after value.")
       Stmt::Expr.new(value)
@@ -101,6 +117,7 @@ module Lox
       return Expr::Literal.new(true) if match?(:TRUE)
       return Expr::Literal.new(nil) if match?(:NIL)
       return Expr::Literal.new(prev.literal) if match?(:NUMBER, :STRING)
+      return Expr::Variable.new(prev) if match?(:IDENTIFIER)
 
       if match?(:LEFT_PAREN)
         expr = expression
@@ -151,6 +168,6 @@ module Lox
         advance!
       end
     end
-  end
 
+  end
 end

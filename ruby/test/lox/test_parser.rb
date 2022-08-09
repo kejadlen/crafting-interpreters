@@ -45,22 +45,26 @@ class TestParser < Lox::Test
       parse("(42", :primary)
     end
     assert_equal "[line 1] Error at end: Expect ')' after expression.", e.message
+  end
 
-    e = assert_raises Lox::ParseError do
-      parse("foo foo", :primary)
-    end
-    assert_equal "[line 1] Error at 'foo': Expect expression.", e.message
+  def test_print
+    assert_parsed "(print 42.0)", :statement, "print 42.0;"
+  end
+
+  def test_var
+    assert_parsed "(var foo 42.0)", :declaration, "var foo = 42.0;"
   end
 
   private
+
+  def assert_parsed(expected, name, src)
+    expr = parse(src, name)
+    assert_equal expected, @ast_printer.print(expr)
+  end
 
   def parse(src, name)
     tokens = @scanner.scan(src)
     Lox::Parser.new(tokens).send(name)
   end
 
-  def assert_parsed(expected, name, src)
-    expr = parse(src, name)
-    assert_equal expected, @ast_printer.print(expr)
-  end
 end

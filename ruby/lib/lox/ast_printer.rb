@@ -7,6 +7,9 @@ module Lox
     def visit_literal(expr)  = expr.value&.to_s || "nil"
     def visit_unary(expr)    = parenthesize(expr.op.lexeme, expr.right)
 
+    def visit_print(expr)    = parenthesize("print", expr.expr)
+    def visit_var(expr)      = "(var #{expr.name.lexeme} #{expr.initializer.value})"
+
     private
 
     def parenthesize(name, *exprs)
