@@ -1,5 +1,12 @@
+require_relative "environment"
+
 module Lox
   class Interpreter
+
+    def initialize
+      @env = Environment.new
+    end
+
     # The book does printing and error catching here, but
     # we're going to do it in the runner instead.
     def interpret(stmts)
@@ -20,6 +27,12 @@ module Lox
       nil
     end
 
+    def visit_var(stmt)
+      value = stmt.initializer&.yield_self { evaluate(_1) }
+      @env.define(stmt.name.lexeme, value)
+      nil
+    end
+
     def visit_grouping(expr) = evaluate(expr.expr)
     def visit_literal(expr)  = expr.value
 
@@ -33,6 +46,10 @@ module Lox
       when :BANG  then !truthy?(right)
       else fail
       end
+    end
+
+    def visit_variable(expr)
+      @env.get(expr.name)
     end
 
     def visit_binary(expr)

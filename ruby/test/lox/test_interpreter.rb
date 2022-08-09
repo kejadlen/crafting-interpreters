@@ -97,6 +97,16 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_environment
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      3
+    EXPECTED
+      var a = 1;
+      var b = 2;
+      print a + b;
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)
