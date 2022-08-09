@@ -8,7 +8,14 @@ module Lox
     def visit_unary(expr)    = parenthesize(expr.op.lexeme, expr.right)
 
     def visit_print(expr)    = parenthesize("print", expr.expr)
-    def visit_var(expr)      = "(var #{expr.name.lexeme} #{expr.initializer.value})"
+
+    def visit_var(expr)
+      if init = expr.initializer
+        "(assign #{expr.name.lexeme} #{expr.initializer.value})"
+      else
+        "(var #{expr.name.lexeme})"
+      end
+    end
 
     private
 

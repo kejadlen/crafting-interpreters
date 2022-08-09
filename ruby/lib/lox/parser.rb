@@ -54,6 +54,21 @@ module Lox
       Stmt::Expr.new(value)
     end
 
+    def assignment
+      expr = equality
+
+      if match?(:EQUAL)
+        eq = prev
+        value = assignment
+
+        raise ParseError.new(eq, "Invalid assignment target.") unless expr.instance_of?(Expr::Variable)
+
+        Expr::Assign.new(expr.name, value)
+      end
+
+      expr
+    end
+
     def expression = equality
 
     def equality

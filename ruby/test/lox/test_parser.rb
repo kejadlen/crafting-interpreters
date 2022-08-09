@@ -52,7 +52,11 @@ class TestParser < Lox::Test
   end
 
   def test_var
-    assert_parsed "(var foo 42.0)", :declaration, "var foo = 42.0;"
+    assert_parsed "(var foo)", :declaration, "var foo;"
+  end
+
+  def test_assign
+    assert_parsed "(assign foo 42.0)", :declaration, "var foo = 42.0;"
   end
 
   private
