@@ -3,8 +3,8 @@ require_relative "environment"
 module Lox
   class Interpreter
 
-    def initialize
-      @env = Environment.new
+    def initialize(env=Environment.new)
+      @env = env
     end
 
     # The book does printing and error catching here, but

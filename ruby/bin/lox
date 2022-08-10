@@ -4,33 +4,17 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 
 require "lox"
 
-def run_prompt
+def run_prompt(runner)
   loop do
     print "> "
     line = gets
     break if line.nil? || line.empty?
-    begin
-      run(line)
-    rescue Lox::ParseError => e
-      STDERR.puts e.message
-    rescue Lox::RuntimeError => e
-      STDERR.puts e.message
-    end
+    runner.run(line)
   end
 end
 
-def run_file(io)
-  run(io.read)
-rescue Lox::ParseError => e
-  STDERR.puts e.message
-  exit 65
-rescue Lox::RuntimeError => e
-  STDERR.puts e.message, "[line #{e.token.line}]"
-  exit 70
-end
-
-def run(src)
-  Lox::Runner.new.run(src)
+def run_file(runner, io)
+  runner.run(io.read)
 end
 
 
@@ -38,8 +22,8 @@ if __FILE__ == $0
   puts "Usage: #$0 [script]" or exit 64 if ARGV.length > 1
 
   if ARGV.empty?
-    run_prompt
+    run_prompt(Lox::PromptRunner.new)
   else
-    run_file(ARGF)
+    Lox::FileRunner.new.run(ARGF.read)
   end
 end
