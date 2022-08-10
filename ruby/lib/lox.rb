@@ -40,9 +40,7 @@ module Lox
 
     def run(src)
       super
-    rescue Lox::ParseError => e
-      STDERR.puts e.message
-    rescue Lox::RuntimeError => e
+    rescue Lox::ParseError, Lox::RuntimeError => e
       STDERR.puts e.message
     end
 

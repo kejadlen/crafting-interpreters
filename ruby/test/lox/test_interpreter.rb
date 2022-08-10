@@ -150,13 +150,19 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_uninitialized_vars_are_nil
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      nil
+    EXPECTED
+      var a;
+      print a;
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)
-    output = with_stdout {
-      stmts = Lox::Parser.new(@scanner.scan(src)).parse!
-      @interpreter.interpret(stmts)
-    }
+    output = interpret(src)
     assert_equal expected, output
   end
 
@@ -173,6 +179,13 @@ class TestInterpreter < Lox::Test
     output = $stdout.string.chomp
     $stdout = original
     output
+  end
+
+  def interpret(src)
+    with_stdout {
+      stmts = Lox::Parser.new(@scanner.scan(src)).parse!
+      @interpreter.interpret(stmts)
+    }
   end
 
 end

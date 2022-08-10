@@ -14,11 +14,13 @@ module Lox
     def get(token)
       name = token.lexeme
 
-      @values.fetch(name) {
-        raise RuntimeError.new(token, "Undefined variable '#{name}'.") if @enclosing.nil?
-
+      if @values.has_key?(name)
+        @values[name]
+      elsif @enclosing
         @enclosing.get(token)
-      }
+      else
+        raise RuntimeError.new(token, "Undefined variable '#{name}'.")
+      end
     end
 
     def assign(name, value)
@@ -26,15 +28,11 @@ module Lox
 
       if @values.has_key?(lexeme)
         @values[lexeme] = value
-        return
-      end
-
-      unless @enclosing.nil?
+      elsif @enclosing
         @enclosing.assign(name, value)
-        return
+      else
+        raise RuntimeError.new(name, "Undefined variable '#{lexeme}'.")
       end
-
-      raise RuntimeError.new(name, "Undefined variable '#{lexeme}'.")
     end
   end
 end
