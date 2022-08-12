@@ -62,6 +62,18 @@ module Lox
     def visit_grouping(expr) = evaluate(expr.expr)
     def visit_literal(expr)  = expr.value
 
+    def visit_logical(expr)
+      left = evaluate(expr.left)
+
+      if expr.op.type == :OR
+        return left if truthy?(left)
+      else
+        return left unless truthy?(left)
+      end
+
+      evaluate(expr.right)
+    end
+
     def visit_unary(expr)
       right = evaluate(expr.right)
 

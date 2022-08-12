@@ -77,7 +77,7 @@ module Lox
     end
 
     def assignment
-      expr = equality
+      expr = or_
 
       if match?(:EQUAL)
         eq = prev
@@ -86,6 +86,30 @@ module Lox
         raise ParseError.new(eq, "Invalid assignment target.") unless expr.instance_of?(Expr::Variable)
 
         return Expr::Assign.new(expr.name, value)
+      end
+
+      expr
+    end
+
+    def or_
+      expr = and_
+
+      while match?(:OR)
+        op = prev
+        right = and_
+        expr = Expr::Logical.new(expr, op, right)
+      end
+
+      expr
+    end
+
+    def and_
+      expr = equality
+
+      while match?(:AND)
+        op = prev
+        right = equality
+        expr = Expr::Logical.new(expr, op, right)
       end
 
       expr

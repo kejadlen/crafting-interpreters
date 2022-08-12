@@ -176,6 +176,16 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_logical
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      hi
+      yes
+    EXPECTED
+      print "hi" or 2; // "hi".
+      print nil or "yes"; // "yes".
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

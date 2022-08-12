@@ -18,6 +18,10 @@ module Lox
       include Visitable
     end
 
+    Logical = Struct.new(:left, :op, :right) do
+      include Visitable
+    end
+
     Unary = Struct.new(:op, :right) do
       include Visitable
     end
