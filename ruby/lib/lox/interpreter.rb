@@ -59,6 +59,13 @@ module Lox
       nil
     end
 
+    def visit_while(stmt)
+      while truthy?(evaluate(stmt.cond))
+        execute(stmt.body)
+      end
+      nil
+    end
+
     def visit_grouping(expr) = evaluate(expr.expr)
     def visit_literal(expr)  = expr.value
 

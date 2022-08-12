@@ -36,9 +36,19 @@ module Lox
       Stmt::Var.new(name, initializer)
     end
 
+    def while_stmt
+      consume!(:LEFT_PAREN, "Expect '(' after 'if'.")
+      cond = expression
+      consume!(:RIGHT_PAREN, "Expect ')' after 'if'.")
+      body = statement
+
+      Stmt::While.new(cond, body)
+    end
+
     def statement
       return if_stmt if match?(:IF)
       return print if match?(:PRINT)
+      return while_stmt if match?(:WHILE)
       return Stmt::Block.new(block) if match?(:LEFT_BRACE)
 
       expression_stmt

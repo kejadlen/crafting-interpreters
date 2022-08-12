@@ -186,6 +186,20 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_while
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      0
+      1
+      2
+    EXPECTED
+      var a = 0;
+      while (a < 3) {
+        print a;
+        a = a + 1;
+      }
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)
