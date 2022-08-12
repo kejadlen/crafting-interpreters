@@ -1,25 +1,21 @@
-require_relative "visitable"
+require_relative "expr"
 
 module Lox
   module Stmt
-    Block = Struct.new(:stmts) do
-      include Visitable
+    def self.stmt(name, *children)
+      klass = Struct.new(name.to_s, *children) do
+        def accept(visitor)
+          klass = self.class.to_s.split("::").last.downcase
+          visitor.send("visit_#{klass}", self)
+        end
+      end
+      const_set(name, klass)
     end
 
-    Expr = Struct.new(:expr) do
-      include Visitable
-    end
-
-    If = Struct.new(:cond, :then, :else) do
-      include Visitable
-    end
-
-    Print = Struct.new(:expr) do
-      include Visitable
-    end
-
-    Var = Struct.new(:name, :initializer) do
-      include Visitable
-    end
+    stmt :Block, :stmts
+    stmt :Expr, :expr
+    stmt :If, :cond, :then, :else
+    stmt :Print, :expr
+    stmt :Var, :name, :initializer
   end
 end
