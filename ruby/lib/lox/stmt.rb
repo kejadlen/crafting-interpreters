@@ -10,6 +10,10 @@ module Lox
       include Visitable
     end
 
+    If = Struct.new(:cond, :then, :else) do
+      include Visitable
+    end
+
     Print = Struct.new(:expr) do
       include Visitable
     end

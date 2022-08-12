@@ -39,6 +39,15 @@ module Lox
       nil
     end
 
+    def visit_if(stmt)
+      if truthy?(evaluate(stmt.cond))
+        evaluate(stmt.then)
+      elsif stmt.else
+        evaluate(stmt.else)
+      end
+      nil
+    end
+
     def visit_print(expr)
       puts stringify(evaluate(expr.expr))
       nil

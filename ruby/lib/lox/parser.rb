@@ -37,10 +37,22 @@ module Lox
     end
 
     def statement
+      return if_stmt if match?(:IF)
       return print if match?(:PRINT)
       return Stmt::Block.new(block) if match?(:LEFT_BRACE)
 
       expression_stmt
+    end
+
+    def if_stmt
+      consume!(:LEFT_PAREN, "Expect '(' after 'if'.")
+      cond = expression
+      consume!(:RIGHT_PAREN, "Expect ')' after 'if'.")
+
+      then_stmt = statement
+      else_stmt = match?(:ELSE) ? statement : nil
+
+      Stmt::If.new(cond, then_stmt, else_stmt)
     end
 
     def print

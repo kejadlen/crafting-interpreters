@@ -26,6 +26,16 @@ module Lox
       parenthesize("block", *expr.stmts)
     end
 
+    def visit_if(stmt)
+      exprs = [stmt.cond, stmt.then]
+      exprs << stmt.else if stmt.else
+      parenthesize("if", *exprs)
+    end
+
+    def visit_expr(expr)
+      expr.expr.accept(self)
+    end
+
     private
 
     def parenthesize(name, *exprs)

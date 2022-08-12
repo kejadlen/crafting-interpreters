@@ -69,6 +69,12 @@ class TestParser < Lox::Test
     SRC
   end
 
+  def test_if
+    assert_parsed "(if (var first) (if (var second) true false))", :statement, <<~SRC
+      if (first) if (second) true; else false;
+    SRC
+  end
+
   private
 
   def assert_parsed(expected, name, src)
