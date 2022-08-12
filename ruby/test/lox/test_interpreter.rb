@@ -200,6 +200,30 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_for
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      0
+      1
+      1
+      2
+      3
+      5
+      8
+      13
+      21
+      34
+    EXPECTED
+      var a = 0;
+      var temp;
+
+      for (var b = 1; a < 50; b = temp + b) {
+        print a;
+        temp = a;
+        a = b;
+      }
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

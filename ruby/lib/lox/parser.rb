@@ -46,12 +46,51 @@ module Lox
     end
 
     def statement
+      return for_stmt if match?(:FOR)
       return if_stmt if match?(:IF)
       return print if match?(:PRINT)
       return while_stmt if match?(:WHILE)
       return Stmt::Block.new(block) if match?(:LEFT_BRACE)
 
       expression_stmt
+    end
+
+    def for_stmt
+      consume!(:LEFT_PAREN, "Expect '(' after 'if'.")
+
+      initializer = if match?(:SEMICOLON)
+                      nil
+                    elsif match?(:VAR)
+                      var_declaration
+                    else
+                      expression_stmt
+                    end
+
+      condition = !check?(:SEMICOLON) ? expression : Expr::Literal(true)
+      consume!(:SEMICOLON, "Expect ';' after loop condition.")
+
+      increment = !check?(:RIGHT_PAREN) ? expression : nil
+      consume!(:RIGHT_PAREN, "Expect ')' after for clauses.")
+
+      body = statement
+
+      if increment
+        body = Stmt::Block.new([
+          body,
+          Stmt::Expr.new(increment),
+        ])
+      end
+
+      body = Stmt::While.new(condition, body);
+
+      if initializer
+        body = Stmt::Block.new([
+          initializer,
+          body,
+        ])
+      end
+
+      body
     end
 
     def if_stmt
