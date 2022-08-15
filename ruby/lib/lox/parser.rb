@@ -16,6 +16,8 @@ module Lox
         statements << declaration
       end
       statements
+    rescue ParseError
+      synchronize!
     end
 
     private
@@ -24,8 +26,6 @@ module Lox
       return var_declaration if match?(:VAR)
 
       statement
-    rescue ParseError
-      synchronize!
     end
 
     def var_declaration
@@ -240,6 +240,8 @@ module Lox
       args = []
       if !check?(:RIGHT_PAREN)
         loop do
+          raise ParseError.new(peek,  "Can't have more than 255 arguments.") if args.size >= 255
+
           args << expression
           break unless match?(:COMMA)
         end
