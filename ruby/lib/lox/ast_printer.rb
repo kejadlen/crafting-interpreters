@@ -36,6 +36,10 @@ module Lox
       expr.expr.accept(self)
     end
 
+    def visit_call(call)
+      parenthesize(call.callee.accept(self), *call.args)
+    end
+
     private
 
     def parenthesize(name, *exprs)
