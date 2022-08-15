@@ -138,7 +138,13 @@ module Lox
         left * right
       else fail
       end
+    end
 
+    def visit_call(expr)
+      callee = evaluate(expr.callee)
+      args = expr.args.map { evaluate(_1) }
+
+      callee.call(self, args)
     end
 
     private
