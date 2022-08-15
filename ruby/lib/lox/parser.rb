@@ -215,11 +215,39 @@ module Lox
     end
 
     def unary
-      return primary unless match?(:BANG, :MINUS)
+      return call unless match?(:BANG, :MINUS)
 
       op = prev
       right = unary
       Expr::Unary.new(op, right)
+    end
+
+    def call
+      expr = primary
+
+      loop do
+        if match?(:LEFT_PAREN)
+          expr = finish_call(expr)
+        else
+          break
+        end
+      end
+
+      expr
+    end
+
+    def finish_call(callee)
+      args = []
+      if !check?(:RIGHT_PAREN)
+        loop do
+          args << expression
+          break unless match?(:COMMA)
+        end
+      end
+
+      paren = consume!(:RIGHT_PAREN, "Expect ')' after arguments.")
+
+      Expr::Call.new(callee, paren, args)
     end
 
     def primary
