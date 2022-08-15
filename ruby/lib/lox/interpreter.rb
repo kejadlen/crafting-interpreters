@@ -141,10 +141,13 @@ module Lox
     end
 
     def visit_call(expr)
-      callee = evaluate(expr.callee)
+      func = evaluate(expr.callee)
       args = expr.args.map { evaluate(_1) }
 
-      callee.call(self, args)
+      raise RuntimeError.new(expr.paren, "Can only call functions and classes.") unless func.respond_to?(:call)
+      raise RuntimeError.new(expr.paren, "Expected #{func.arity} arguments but got #{args.size}.") unless args.size == func.arity
+
+      func.call(self, args)
     end
 
     private
