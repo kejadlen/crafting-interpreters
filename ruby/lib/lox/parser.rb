@@ -23,6 +23,7 @@ module Lox
     private
 
     def declaration
+      return function("function") if match?(:FUN)
       return var_declaration if match?(:VAR)
 
       statement
@@ -114,6 +115,26 @@ module Lox
       value = expression
       consume!(:SEMICOLON, "Expect ';' after value.")
       Stmt::Expr.new(value)
+    end
+
+    def function(kind)
+      name = consume!(:IDENTIFIER, "Expect #{kind} name.")
+      consume!(:LEFT_PAREN, "Expect '(' after #{kind} name.")
+      params = []
+      unless check?(:RIGHT_PAREN)
+        loop do
+          raise ParseError.new(peek, "Can't have more than 255 parameters.") if params.size >= 255
+
+          params << consume!(:IDENTIFIER, "Expect parameter name.")
+          break unless match?(:COMMA)
+        end
+      end
+      consume!(:RIGHT_PAREN, "Expect ')' after parameters.")
+
+      consume!(:LEFT_BRACE, "Expect '{' before #{kind} body.")
+      body = block
+
+      Stmt::Function.new(name, params, body)
     end
 
     def block
