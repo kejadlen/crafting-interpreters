@@ -4,7 +4,14 @@ module Lox
   class Interpreter
 
     def initialize(env=Environment.new)
-      @env = env
+      @globals = env
+      @env = @globals
+
+      @globals.define("clock", Class.new {
+        def arity = 0
+        def call(*) = Time.now.to_f
+        def to_s = "<native fn>"
+      })
     end
 
     # The book does printing and error catching here, but
