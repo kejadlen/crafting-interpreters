@@ -1,7 +1,10 @@
 require_relative "environment"
+require_relative "function"
 
 module Lox
   class Interpreter
+
+    attr_reader :globals
 
     def initialize(env=Environment.new)
       @globals = env
@@ -43,6 +46,12 @@ module Lox
 
     def visit_expr(expr)
       evaluate(expr.expr)
+      nil
+    end
+
+    def visit_function(stmt)
+      function = Function.new(stmt)
+      @env.define(stmt.name.lexeme, function)
       nil
     end
 

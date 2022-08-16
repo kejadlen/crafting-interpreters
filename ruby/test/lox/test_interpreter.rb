@@ -224,6 +224,17 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_function
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      Hi, Dear Reader!
+    EXPECTED
+      fun sayHi(first, last) {
+        print "Hi, " + first + " " + last + "!";
+      }
+
+      sayHi("Dear", "Reader");
+    SRC
+  end
   private
 
   def assert_interpreted(expected, src)
