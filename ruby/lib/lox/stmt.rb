@@ -17,6 +17,7 @@ module Lox
     stmt :Expr, :expr
     stmt :If, :cond, :then, :else
     stmt :Print, :expr
+    stmt :Return, :keyword, :value
     stmt :Var, :name, :initializer
     stmt :While, :cond, :body
   end

@@ -40,6 +40,11 @@ module Lox
       parenthesize(call.callee.accept(self), *call.args)
     end
 
+    def visit_return(stmt)
+      exprs = stmt.value ? [stmt.value] : []
+      parenthesize("return", *exprs)
+    end
+
     private
 
     def parenthesize(name, *exprs)

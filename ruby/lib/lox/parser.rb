@@ -50,6 +50,7 @@ module Lox
       return for_stmt if match?(:FOR)
       return if_stmt if match?(:IF)
       return print if match?(:PRINT)
+      return return_stmt if match?(:RETURN)
       return while_stmt if match?(:WHILE)
       return Stmt::Block.new(block) if match?(:LEFT_BRACE)
 
@@ -109,6 +110,13 @@ module Lox
       value = expression
       consume!(:SEMICOLON, "Expect ';' after value.")
       Stmt::Print.new(value)
+    end
+
+    def return_stmt
+      keyword = prev
+      value = check?(:SEMICOLON) ? nil : expression
+      consume!(:SEMICOLON, "Expect ';' after return value.")
+      Stmt::Return.new(keyword, value)
     end
 
     def expression_stmt

@@ -81,6 +81,11 @@ class TestParser < Lox::Test
     assert_parsed "((var foo) (var bar) (var baz))", :statement, "foo(bar, baz);"
   end
 
+  def test_return
+    assert_parsed "(return)", :statement, "return;"
+    assert_parsed "(return (var foo))", :statement, "return foo;"
+  end
+
   private
 
   def assert_parsed(expected, name, src)
