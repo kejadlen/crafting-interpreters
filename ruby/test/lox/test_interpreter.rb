@@ -257,6 +257,27 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_local_functions_and_closures
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      1
+      2
+    EXPECTED
+      fun makeCounter() {
+        var i = 0;
+        fun count() {
+          i = i + 1;
+          print i;
+        }
+
+        return count;
+      }
+
+      var counter = makeCounter();
+      counter(); // "1".
+      counter(); // "2".
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

@@ -50,7 +50,7 @@ module Lox
     end
 
     def visit_function(stmt)
-      function = Function.new(stmt)
+      function = Function.new(stmt, @env)
       @env.define(stmt.name.lexeme, function)
       nil
     end

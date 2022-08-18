@@ -2,14 +2,14 @@ require_relative "environment"
 
 module Lox
   class Function
-    def initialize(decl)
-      @decl = decl
+    def initialize(decl, closure)
+      @decl, @closure = decl, closure
     end
 
     def arity = @decl.params.size
 
     def call(interpreter, args)
-      env = Environment.new(interpreter.globals)
+      env = Environment.new(@closure)
       @decl.params.map(&:lexeme).zip(args).each do |name, value|
         env.define(name, value)
       end
