@@ -69,6 +69,12 @@ module Lox
       nil
     end
 
+    def visit_return(stmt)
+      value = stmt.value ? evaluate(stmt.value) : nil
+
+      throw(:return, value)
+    end
+
     def visit_var(stmt)
       value = stmt.initializer&.yield_self { evaluate(_1) }
       @env.define(stmt.name.lexeme, value)

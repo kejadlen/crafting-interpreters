@@ -14,8 +14,9 @@ module Lox
         env.define(name, value)
       end
 
-      interpreter.execute_block(@decl.body, env)
-      nil
+      catch(:return) {
+        interpreter.execute_block(@decl.body, env)
+      }
     end
 
     def to_s = "<fn #{@decl.name.lexeme}>"

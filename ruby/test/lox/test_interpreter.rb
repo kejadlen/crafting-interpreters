@@ -235,6 +235,28 @@ class TestInterpreter < Lox::Test
       sayHi("Dear", "Reader");
     SRC
   end
+
+  def test_function
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      0
+      1
+      1
+      2
+      3
+      5
+      8
+    EXPECTED
+      fun fib(n) {
+        if (n <= 1) return n;
+        return fib(n - 2) + fib(n - 1);
+      }
+
+      for (var i = 0; i < 7; i = i + 1) {
+        print fib(i);
+      }
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

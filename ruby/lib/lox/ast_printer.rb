@@ -48,9 +48,7 @@ module Lox
     private
 
     def parenthesize(name, *exprs)
-      inside = [name]
-      inside.concat(exprs.map {|expr| expr.accept(self) })
-      "(#{inside.join(" ")})"
+      "(#{[name, *exprs.map { _1.accept(self) }].join(" ")})"
     end
   end
 end
