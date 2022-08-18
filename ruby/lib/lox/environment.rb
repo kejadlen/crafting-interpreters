@@ -48,7 +48,7 @@ module Lox
     end
 
     def assign_at(distance, name, value)
-      ancestor(distance).values[name] = value
+      ancestor(distance).values[name.lexeme] = value
     end
   end
 end

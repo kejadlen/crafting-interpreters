@@ -2,12 +2,12 @@ require_relative "../test_helper"
 
 require "lox/interpreter"
 require "lox/parser"
+require "lox/resolver"
 require "lox/scanner"
 
 class TestInterpreter < Lox::Test
   def setup
     @scanner = Lox::Scanner.new
-    @interpreter = Lox::Interpreter.new
   end
 
   # def test_literal
@@ -234,9 +234,25 @@ class TestInterpreter < Lox::Test
 
       sayHi("Dear", "Reader");
     SRC
-  end
 
-  def test_function
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      0
+      1
+      2
+    EXPECTED
+      {
+        var i = 0; while (i < 3) { { print i; } i = i + 1; }
+      }
+    SRC
+
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      0
+      1
+      2
+    EXPECTED
+      for (var i = 0; i < 3; i = i + 1) print i;
+    SRC
+
     assert_interpreted <<~EXPECTED.chomp, <<~SRC
       0
       1
@@ -278,6 +294,18 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_resolver
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      1
+    EXPECTED
+      var foo = 1;
+      {
+        print foo;
+        var foo = 2;
+      }
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)
@@ -303,7 +331,12 @@ class TestInterpreter < Lox::Test
   def interpret(src)
     with_stdout {
       stmts = Lox::Parser.new(@scanner.scan(src)).parse!
-      @interpreter.interpret(stmts)
+      interpreter = Lox::Interpreter.new
+
+      resolver = Lox::Resolver.new(interpreter);
+      resolver.resolve(*stmts);
+
+      interpreter.interpret(stmts)
     }
   end
 

@@ -45,6 +45,10 @@ module Lox
       parenthesize("return", *exprs)
     end
 
+    def visit_while(stmt)
+      parenthesize("while", stmt.cond, stmt.body)
+    end
+
     private
 
     def parenthesize(name, *exprs)

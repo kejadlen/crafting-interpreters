@@ -56,4 +56,14 @@ class TestEnvironment < Lox::Test
     assert_equal "foo", @env.get_at(0, "name")
   end
 
+  def test_assign_at
+    enclosed = Lox::Environment.new(@env)
+
+    enclosed.assign_at(0, NAME_TOKEN, "foo")
+    assert_equal "foo", enclosed.get_at(0, "name")
+
+    enclosed.assign_at(1, NAME_TOKEN, "bar")
+    assert_equal "bar", enclosed.get_at(1, "name")
+  end
+
 end

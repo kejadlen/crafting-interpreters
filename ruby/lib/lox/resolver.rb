@@ -24,7 +24,6 @@ module Lox
     end
 
     def visit_expr(stmt) = resolve(stmt.expr)
-    end
 
     def visit_function(stmt)
       declare(stmt.name)
@@ -35,12 +34,14 @@ module Lox
     end
 
     def visit_if(stmt)
-      resolve(stmt.condition, stmt.then)
+      resolve(stmt.cond, stmt.then)
       resolve(stmt.else) if stmt.else
     end
 
     def visit_print(stmt) = resolve(stmt.expr)
-    def visit_return(stmt) = resolve(stmt.value) if stmt.value
+    def visit_return(stmt)
+      resolve(stmt.value) if stmt.value
+    end
 
     def visit_var(stmt)
       declare(stmt.name)
@@ -49,7 +50,7 @@ module Lox
       nil
     end
 
-    def visit_while(stmt) = resolve(stmt.condition, stmt.body)
+    def visit_while(stmt) = resolve(stmt.cond, stmt.body)
 
     def visit_variable(expr)
       if !@scopes.empty? && @scopes.last[expr.name.lexeme] == false
@@ -75,15 +76,17 @@ module Lox
 
     private
 
-    def with_block
-      @scopes.unshift({})
+    def with_scope
+      @scopes.push({})
       yield
-      @scopes.shift
+      @scopes.pop
     end
 
     def declare(name)
       scope = @scopes.last
       return if scope.nil?
+
+      raise ResolverError.new(name, "Already a variable with this name in this scope") if scope.has_key?(name.lexeme)
 
       scope[name.lexeme] = false
     end
@@ -92,11 +95,11 @@ module Lox
       scope = @scopes.last
       return if scope.nil?
 
-      scopes[name.lexeme] = true
+      scope[name.lexeme] = true
     end
 
     def resolve_local(expr, name)
-      scope_and_depth = @scopes.each.with_index.find {|scope, depth| scope.has_key?(name.lexeme) }
+      scope_and_depth = @scopes.reverse.each.with_index.find {|scope, depth| scope.has_key?(name.lexeme) }
       return unless scope_and_depth
 
       scope, depth = scope_and_depth
@@ -109,7 +112,7 @@ module Lox
           declare(param)
           define(param)
         end
-        resolve(fn.body)
+        resolve(*fn.body)
       end
     end
 
