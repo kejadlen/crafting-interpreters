@@ -46,5 +46,9 @@ module Lox
         raise RuntimeError.new(name, "Undefined variable '#{lexeme}'.")
       end
     end
+
+    def assign_at(distance, name, value)
+      ancestor(distance).values[name] = value
+    end
   end
 end

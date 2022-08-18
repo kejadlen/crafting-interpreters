@@ -135,7 +135,14 @@ module Lox
 
     def visit_assign(expr)
       value = evaluate(expr.value)
-      @env.assign(expr.name, value)
+
+      if @locals.has_key?(expr)
+        distance = @locals.get(expr)
+        @env.assign_at(distance, expr.name, value)
+      else
+        @globals.assign(expr.name, value)
+      end
+
       value
     end
 
