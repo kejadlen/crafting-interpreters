@@ -9,6 +9,7 @@ module Lox
     def initialize(env=Environment.new)
       @globals = env
       @env = @globals
+      @locals = {}
 
       @globals.define("clock", Class.new {
         def arity = 0
@@ -27,6 +28,10 @@ module Lox
 
     def evaluate(expr) = expr.accept(self)
     def execute(stmt) = stmt.accept(self)
+
+    def resolve(expr, depth)
+      @locals[expr] = depth
+    end
 
     def visit_block(stmt)
       execute_block(stmt.stmts, Environment.new(@env))
@@ -116,7 +121,16 @@ module Lox
     end
 
     def visit_variable(expr)
-      @env.get(expr.name)
+      lookup_var(expr.name, expr)
+    end
+
+    def lookup_var(name, expr)
+      if @locals.has_key?(expr)
+        distance = @locals.fetch(expr)
+        @env.get_at(distance, name.lexeme)
+      else
+        @globals.get(name)
+      end
     end
 
     def visit_assign(expr)
