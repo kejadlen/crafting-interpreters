@@ -7,7 +7,12 @@ namespace :test do
   desc "Run tests on source changes"
   task :watch do
     loop do
-      sh "fd .*.rb | entr -d rake test:isolated"
+      sh <<~SH
+        while true
+        do
+          fd .*.rb | entr -d rake test:isolated
+        done
+      SH
     end
   end
 end
