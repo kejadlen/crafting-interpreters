@@ -2,6 +2,8 @@ require_relative "error"
 
 module Lox
   class Environment
+    attr_reader :values, :enclosing
+
     def initialize(enclosing = nil)
       @enclosing = enclosing
       @values = {}
@@ -9,6 +11,12 @@ module Lox
 
     def define(name, value)
       @values[name] = value
+    end
+
+    def ancestor(distance)
+      env = self
+      distance.times { env = env.enclosing }
+      env
     end
 
     def get(token)
@@ -21,6 +29,10 @@ module Lox
       else
         raise RuntimeError.new(token, "Undefined variable '#{name}'.")
       end
+    end
+
+    def get_at(distance, name)
+      ancestor(distance).values.fetch(name)
     end
 
     def assign(name, value)
