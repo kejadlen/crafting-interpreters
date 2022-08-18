@@ -22,10 +22,46 @@ module Lox
       nil
     end
 
+    def visit_expr(stmt)
+      resolve(stmt.expr)
+      nil
+    end
+
+    def visit_function(stmt)
+      declare(stmt.name)
+      define(stmt.name)
+
+      resolve_function(stmt)
+      nil
+    end
+
+    def visit_if(stmt)
+      resolve(stmt.condition)
+      resolve(stmt.then)
+      resolve(stmt.else) if stmt.else
+      nil
+    end
+
+    def visit_print(stmt)
+      resolve(stmt.expr)
+      nil
+    end
+
+    def visit_return(stmt)
+      resolve(stmt.value) if stmt.value
+      nil
+    end
+
     def visit_var(stmt)
       declare(stmt.name)
       resolve(stmt.initializer) if stmt.initializer
       define(stmt.name)
+      nil
+    end
+
+    def visit_while(stmt)
+      resolve(stmt.condition)
+      resolve(stmt.body)
       nil
     end
 
@@ -44,11 +80,33 @@ module Lox
       nil
     end
 
-    def visit_function(stmt)
-      declare(stmt.name)
-      define(stmt.name)
+    def visit_binary(expr)
+      resolve(expr.left)
+      resolve(expr.right)
+      nil
+    end
 
-      resolve_function(stmt)
+    def visit_call(expr)
+      resolve(expr.callee, *expr.args)
+      nil
+    end
+
+    def visit_grouping(expr)
+      resolve(expr.expr)
+      nil
+    end
+
+    def visit_literal(expr)
+      nil
+    end
+
+    def visit_logical(expr)
+      resolve(expr.left, expr.right)
+      nil
+    end
+
+    def visit_unary(expr)
+      resolve(expr.right)
       nil
     end
 
