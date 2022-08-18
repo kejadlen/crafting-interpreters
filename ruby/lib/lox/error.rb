@@ -1,5 +1,11 @@
 module Lox
+
   class Error < StandardError
+    attr_reader :token, :message
+
+    def initialize(token, message)
+      @token, @message = token, message
+    end
   end
 
   class ParseError < Error
@@ -8,16 +14,12 @@ module Lox
 
       error = "Error"
       error << " at #{where}" unless where.empty?
-      super("[line #{token.line}] #{error}: #{message}")
+
+      super(token, "[line #{token.line}] #{error}: #{message}")
     end
   end
 
-  class RuntimeError < Error
-    attr_reader :token
+  RuntimeError = Class.new(Error)
+  ResolverError = Class.new(Error)
 
-    def initialize(token, message)
-      @token = token
-      super(message)
-    end
-  end
 end
