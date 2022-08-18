@@ -44,6 +44,14 @@ module Lox
       nil
     end
 
+    def visit_function(stmt)
+      declare(stmt.name)
+      define(stmt.name)
+
+      resolve_function(stmt)
+      nil
+    end
+
     private
 
     def with_block
@@ -72,6 +80,16 @@ module Lox
 
       scope, depth = scope_and_depth
       @interpreter.resolve(expr, depth)
+    end
+
+    def resolve_function(fn)
+      with_scope do
+        fn.params.each do |param|
+          declare(param)
+          define(param)
+        end
+        resolve(fn.body)
+      end
     end
 
   end
