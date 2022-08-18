@@ -38,6 +38,12 @@ module Lox
       nil
     end
 
+    def visit_assign(expr)
+      resolve(expr.value)
+      resolve_local(expr, expr.name)
+      nil
+    end
+
     private
 
     def with_block
