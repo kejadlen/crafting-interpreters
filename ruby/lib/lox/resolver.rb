@@ -9,10 +9,11 @@ module Lox
       @scopes = []
     end
 
-    def resolve(*values)
-      values.each do
-        value.accept(self)
+    def resolve(*resolvees)
+      resolvees.each do |resolvee|
+        resolvee.accept(self)
       end
+      nil
     end
 
     def visit_block(stmt)
@@ -22,9 +23,7 @@ module Lox
       nil
     end
 
-    def visit_expr(stmt)
-      resolve(stmt.expr)
-      nil
+    def visit_expr(stmt) = resolve(stmt.expr)
     end
 
     def visit_function(stmt)
@@ -36,21 +35,12 @@ module Lox
     end
 
     def visit_if(stmt)
-      resolve(stmt.condition)
-      resolve(stmt.then)
+      resolve(stmt.condition, stmt.then)
       resolve(stmt.else) if stmt.else
-      nil
     end
 
-    def visit_print(stmt)
-      resolve(stmt.expr)
-      nil
-    end
-
-    def visit_return(stmt)
-      resolve(stmt.value) if stmt.value
-      nil
-    end
+    def visit_print(stmt) = resolve(stmt.expr)
+    def visit_return(stmt) = resolve(stmt.value) if stmt.value
 
     def visit_var(stmt)
       declare(stmt.name)
@@ -59,11 +49,7 @@ module Lox
       nil
     end
 
-    def visit_while(stmt)
-      resolve(stmt.condition)
-      resolve(stmt.body)
-      nil
-    end
+    def visit_while(stmt) = resolve(stmt.condition, stmt.body)
 
     def visit_variable(expr)
       if !@scopes.empty? && @scopes.last[expr.name.lexeme] == false
@@ -80,35 +66,12 @@ module Lox
       nil
     end
 
-    def visit_binary(expr)
-      resolve(expr.left)
-      resolve(expr.right)
-      nil
-    end
-
-    def visit_call(expr)
-      resolve(expr.callee, *expr.args)
-      nil
-    end
-
-    def visit_grouping(expr)
-      resolve(expr.expr)
-      nil
-    end
-
-    def visit_literal(expr)
-      nil
-    end
-
-    def visit_logical(expr)
-      resolve(expr.left, expr.right)
-      nil
-    end
-
-    def visit_unary(expr)
-      resolve(expr.right)
-      nil
-    end
+    def visit_binary(expr) = resolve(expr.left, expr.right)
+    def visit_call(expr) = resolve(expr.callee, *expr.args)
+    def visit_grouping(expr) = resolve(expr.expr)
+    def visit_literal(expr) = nil
+    def visit_logical(expr) = resolve(expr.left, expr.right)
+    def visit_unary(expr) = resolve(expr.right)
 
     private
 
