@@ -18,6 +18,7 @@ module Lox
 
     def scan(src) = @scanner.scan(src)
     def parse(tokens) = Parser.new(tokens).parse!
+    def resolve(stmts) = Resolver.new(@interpreter).resolve(*stmts)
     def interpret(stmts) = @interpreter.interpret(stmts)
   end
 
