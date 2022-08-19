@@ -1,7 +1,9 @@
 use std::alloc::{self, Layout};
 use std::marker::PhantomData;
+use std::ops::Deref;
 use std::ptr::{self, NonNull};
 
+#[repr(u8)]
 pub enum OpCode {
     Return,
 }
@@ -9,8 +11,8 @@ pub enum OpCode {
 pub struct Chunk {
     count: usize,
     capacity: usize,
-    code: NonNull<u8>,
-    _marker: PhantomData<u8>,
+    code: NonNull<OpCode>,
+    _marker: PhantomData<OpCode>,
 }
 
 unsafe impl Send for Chunk {}
@@ -27,17 +29,39 @@ impl Chunk {
     }
 
     // https://doc.rust-lang.org/nomicon/vec/vec-push-pop.html
-    pub fn write(&mut self, byte: u8) {
+    pub fn write(&mut self, op_code: OpCode) {
         if self.count == self.capacity {
             self.grow();
         }
 
         unsafe {
-            ptr::write(self.code.as_ptr().add(self.count), byte);
+            ptr::write(self.code.as_ptr().add(self.count), op_code);
         }
 
         // Can't fail, we'll OOM first.
         self.count += 1;
+    }
+
+    pub fn disassemble(&self, name: &str) {
+        println!("== {} ==", name);
+
+        let mut offset = 0;
+        while offset < self.count {
+            offset = self.disassemble_instruction(offset);
+        }
+    }
+
+    fn disassemble_instruction(&self, offset: usize) -> usize {
+        print!("{:04} ", offset);
+
+        match self[offset] {
+            OpCode::Return => self.simple_instruction("OP_RETURN", offset),
+        }
+    }
+
+    fn simple_instruction(&self, name: &str, offset: usize) -> usize {
+        println!("{}", name);
+        offset + 1
     }
 
     // https://doc.rust-lang.org/nomicon/vec/vec-alloc.html
@@ -74,7 +98,7 @@ impl Chunk {
         };
 
         // If allocation fails, `new_ptr` will be null, in which case we abort.
-        self.code = match NonNull::new(new_ptr as *mut u8) {
+        self.code = match NonNull::new(new_ptr as *mut OpCode) {
             Some(p) => p,
             None => alloc::handle_alloc_error(new_layout),
         };
@@ -82,13 +106,19 @@ impl Chunk {
     }
 
     // https://doc.rust-lang.org/nomicon/vec/vec-push-pop.html
-    pub fn pop(&mut self) -> Option<u8> {
+    pub fn pop(&mut self) -> Option<OpCode> {
         if self.count == 0 {
             None
         } else {
             self.count -= 1;
             unsafe { Some(ptr::read(self.code.as_ptr().add(self.count))) }
         }
+    }
+}
+
+impl Default for Chunk {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -105,8 +135,9 @@ impl Drop for Chunk {
     }
 }
 
-impl Default for Chunk {
-    fn default() -> Self {
-        Self::new()
+impl Deref for Chunk {
+    type Target = [OpCode];
+    fn deref(&self) -> &[OpCode] {
+        unsafe { std::slice::from_raw_parts(self.code.as_ptr(), self.count) }
     }
 }

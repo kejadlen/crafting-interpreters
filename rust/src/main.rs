@@ -1,5 +1,10 @@
+use chunk::{Chunk, OpCode};
+
 pub mod chunk;
 
 fn main() {
-    println!("Hello, world!");
+    let mut chunk = Chunk::default();
+    chunk.write(OpCode::Return);
+
+    chunk.disassemble("test chunk");
 }
