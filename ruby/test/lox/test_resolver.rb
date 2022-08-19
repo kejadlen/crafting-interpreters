@@ -7,13 +7,6 @@ require "lox/scanner"
 
 class TestResolver < Lox::Test
 
-  def setup
-    @ast_printer = Lox::AstPrinter.new
-    @scanner = Lox::Scanner.new
-    @interpreter = Interpreter.new
-    @resolver = Lox::Resolver.new(@interpreter)
-  end
-
   def test_resolver
     assert_resolved [
       ["(var j)", 0],
@@ -47,15 +40,35 @@ class TestResolver < Lox::Test
     SRC
   end
 
+  def test_same_var_name_in_scope
+    assert_raises Lox::ResolverError do
+      resolve(<<~SRC)
+        fun bad() {
+          var a = "first";
+          var a = "second";
+        }
+      SRC
+    end
+  end
+
   private
 
   def assert_resolved(expected, src)
-    stmts = Lox::Parser.new(@scanner.scan(src)).parse!
-    @resolver.resolve(*stmts);
+    resolves = resolve(src)
 
-    assert_equal expected, @interpreter.resolves.map {|expr, depth|
-      [@ast_printer.print(expr), depth]
+    ast_printer = Lox::AstPrinter.new
+    assert_equal expected, resolves.map {|expr, depth|
+      [ast_printer.print(expr), depth]
     }
+  end
+
+  def resolve(src)
+    stmts = Lox::Parser.new(Lox::Scanner.new.scan(src)).parse!
+
+    interpreter = Interpreter.new
+    Lox::Resolver.new(interpreter).resolve(*stmts)
+
+    interpreter.resolves
   end
 
   class Interpreter
