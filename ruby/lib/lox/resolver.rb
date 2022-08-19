@@ -7,6 +7,7 @@ module Lox
       @interpreter = interpreter
 
       @scopes = []
+      @current_func = :NONE
     end
 
     def resolve(*resolvees)
@@ -29,7 +30,7 @@ module Lox
       declare(stmt.name)
       define(stmt.name)
 
-      resolve_function(stmt)
+      resolve_function(stmt, :FUNCTION)
       nil
     end
 
@@ -40,6 +41,7 @@ module Lox
 
     def visit_print(stmt) = resolve(stmt.expr)
     def visit_return(stmt)
+      raise ResolverError.new(stmt.keyword, "Can't return from top-level code.") if @current_func == :NONE
       resolve(stmt.value) if stmt.value
     end
 
@@ -106,14 +108,25 @@ module Lox
       @interpreter.resolve(expr, depth)
     end
 
-    def resolve_function(fn)
-      with_scope do
-        fn.params.each do |param|
-          declare(param)
-          define(param)
+    def resolve_function(fn, type)
+      with_func_type(type) do
+        with_scope do
+          fn.params.each do |param|
+            declare(param)
+            define(param)
+          end
+          resolve(*fn.body)
         end
-        resolve(*fn.body)
       end
+    end
+
+    def with_func_type(type)
+      enclosing_func = @current_func
+      @current_func = type
+
+      yield
+
+      @current_func = enclosing_func
     end
 
   end

@@ -51,6 +51,14 @@ class TestResolver < Lox::Test
     end
   end
 
+  def test_returning_from_top_level
+    assert_raises Lox::ResolverError do
+      resolve(<<~SRC)
+        return;
+      SRC
+    end
+  end
+
   private
 
   def assert_resolved(expected, src)
