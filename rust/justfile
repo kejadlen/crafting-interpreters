@@ -1,0 +1,2 @@
+test-watch:
+  while true; do fd .*.rs | entr -d cargo test; done
