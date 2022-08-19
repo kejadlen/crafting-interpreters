@@ -1,3 +1,7 @@
+use vec::Vec;
+
+use crate::vec;
+
 #[repr(u8)]
 pub enum OpCode {
     Constant,
@@ -9,6 +13,7 @@ type Value = f32;
 pub struct Chunk {
     code: Vec<u8>,
     constants: Vec<Value>,
+    lines: Vec<usize>,
 }
 
 impl Chunk {
@@ -16,12 +21,13 @@ impl Chunk {
         Chunk {
             code: Vec::new(),
             constants: Vec::new(),
+            lines: Vec::new(),
         }
     }
 
-    // https://doc.rust-lang.org/nomicon/vec/vec-push-pop.html
-    pub fn write(&mut self, byte: u8) {
+    pub fn write(&mut self, byte: u8, line: usize) {
         self.code.push(byte);
+        self.lines.push(line);
     }
 
     pub fn add_constant(&mut self, value: Value) -> u8 {
@@ -44,6 +50,12 @@ impl Chunk {
     fn disassemble_instruction(&self, offset: usize) -> usize {
         print!("{:04} ", offset);
 
+        if offset > 0 && self.lines[offset] == self.lines[offset - 1] {
+            print!("   | ");
+        } else {
+            print!("{:>4} ", self.lines[offset]);
+        }
+
         match self.code[offset] {
             0 => self.constant_instruction("OP_CONSTANT", offset),
             1 => self.simple_instruction("OP_RETURN", offset),
@@ -59,7 +71,7 @@ impl Chunk {
     fn constant_instruction(&self, name: &str, offset: usize) -> usize {
         let constant_index = self.code[offset+1];
         let value = self.constants[constant_index as usize];
-        println!("{:<16} {:04} '{}'", name, constant_index, value);
+        println!("{:<16} {:>4} '{}'", name, constant_index, value);
         offset + 2
     }
 }
