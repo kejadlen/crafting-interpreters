@@ -1,3 +1,5 @@
+use std::mem;
+
 use vec::Vec;
 
 use crate::vec;
@@ -5,6 +7,7 @@ use crate::vec;
 #[repr(u8)]
 pub enum OpCode {
     Constant,
+    LongConstant,
     Return,
 }
 
@@ -23,12 +26,19 @@ impl Chunk {
         self.lines.add(line);
     }
 
-    pub fn add_constant(&mut self, value: Value) -> u8 {
+    pub fn write_constant(&mut self, value: Value, line: usize) {
         self.constants.push(value);
+        let index = self.constants.len() - 1;
 
-        assert!(self.constants.len() <= u8::MAX.into(), "Too many constants");
-
-        (self.constants.len() - 1) as u8
+        if let Ok(index) = index.try_into() {
+            self.write(OpCode::Constant as u8, line);
+            self.write(index, line);
+        } else {
+            self.write(OpCode::LongConstant as u8, line);
+            for byte in index.to_ne_bytes() {
+                self.write(byte, line);
+            }
+        }
     }
 
     pub fn disassemble(&self, name: &str) {
@@ -52,7 +62,8 @@ impl Chunk {
 
         match self.code[offset] {
             0 => self.constant_instruction("OP_CONSTANT", offset),
-            1 => self.simple_instruction("OP_RETURN", offset),
+            1 => self.constant_long_instruction("OP_CONSTANT_LONG", offset),
+            2 => self.simple_instruction("OP_RETURN", offset),
             _ => unreachable!(),
         }
     }
@@ -68,6 +79,31 @@ impl Chunk {
         println!("{:<16} {:>4} '{}'", name, constant_index, value);
         offset + 2
     }
+
+    fn constant_long_instruction(&self, name: &str, offset: usize) -> usize {
+        let index_len = mem::size_of::<usize>();
+        let index_bytes = &self.code[offset+1..offset+1+index_len];
+
+        let (int_bytes, _) = index_bytes.split_at(std::mem::size_of::<usize>());
+        let constant_index = usize::from_ne_bytes(int_bytes.try_into().unwrap());
+
+        let value = self.constants[constant_index as usize];
+        println!("{:<16} {:>4} '{}'", name, constant_index, value);
+        offset + 1 + index_len
+    }
+}
+
+#[test]
+fn test_constant_long() {
+    let mut chunk = Chunk::default();
+
+    for i in 0..=u8::MAX {
+        chunk.write_constant(i.into(), 123);
+    }
+
+    chunk.write_constant(0.0, 123);
+
+    // TODO Make the disassembler testable
 }
 
 // Lines are stored using run-length encoding, where the first element is the line and the second
