@@ -1,2 +1,3 @@
 test-watch:
-  while true; do fd .*.rs | entr -d cargo test; done
+  # while true; do fd .*.rs | entr -d cargo test; done
+  fd .*.rs | entr -d cargo test

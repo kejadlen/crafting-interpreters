@@ -10,24 +10,58 @@ pub enum OpCode {
 
 type Value = f32;
 
+#[derive(Default)]
 pub struct Chunk {
     code: Vec<u8>,
     constants: Vec<Value>,
-    lines: Vec<usize>,
+    lines: Lines,
 }
 
-impl Chunk {
-    pub fn new() -> Self {
-        Chunk {
-            code: Vec::new(),
-            constants: Vec::new(),
-            lines: Vec::new(),
+// Lines are stored using run-length encoding, where the first element is the line and the second
+// element the number of instructions that are associated with that line
+#[derive(Default, Debug)]
+struct Lines(std::vec::Vec<(usize, usize)>);
+
+impl Lines {
+    fn add(&mut self, line: usize) {
+        if let Some(last) = self.0.last_mut() {
+            last.1 += 1;
+        } else {
+            self.0.push((line, 1));
         }
     }
 
+    fn get(&self, offset: usize) -> (usize, bool) {
+        let mut offset = offset;
+        for (line, run) in self.0.iter() {
+            if offset == 0 {
+                return (*line, true);
+            }
+
+            if offset < *run {
+                return (*line, false);
+            }
+
+            offset -= run;
+        }
+
+        unreachable!()
+    }
+}
+
+#[test]
+fn test_get_line() {
+    let lines = Lines(vec![(1_usize, 2_usize), (2_usize, 2_usize)]);
+    assert_eq!(lines.get(0), (1, true));
+    assert_eq!(lines.get(1), (1, false));
+    assert_eq!(lines.get(2), (2, true));
+    assert_eq!(lines.get(3), (2, false));
+}
+
+impl Chunk {
     pub fn write(&mut self, byte: u8, line: usize) {
         self.code.push(byte);
-        self.lines.push(line);
+        self.lines.add(line);
     }
 
     pub fn add_constant(&mut self, value: Value) -> u8 {
@@ -50,10 +84,11 @@ impl Chunk {
     fn disassemble_instruction(&self, offset: usize) -> usize {
         print!("{:04} ", offset);
 
-        if offset > 0 && self.lines[offset] == self.lines[offset - 1] {
-            print!("   | ");
+        let (line, is_first) = self.lines.get(offset);
+        if is_first {
+            print!("{:>4} ", line);
         } else {
-            print!("{:>4} ", self.lines[offset]);
+            print!("   | ");
         }
 
         match self.code[offset] {
@@ -73,11 +108,5 @@ impl Chunk {
         let value = self.constants[constant_index as usize];
         println!("{:<16} {:>4} '{}'", name, constant_index, value);
         offset + 2
-    }
-}
-
-impl Default for Chunk {
-    fn default() -> Self {
-        Self::new()
     }
 }
