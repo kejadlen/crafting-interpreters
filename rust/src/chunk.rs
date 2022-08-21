@@ -17,47 +17,6 @@ pub struct Chunk {
     lines: Lines,
 }
 
-// Lines are stored using run-length encoding, where the first element is the line and the second
-// element the number of instructions that are associated with that line
-#[derive(Default, Debug)]
-struct Lines(std::vec::Vec<(usize, usize)>);
-
-impl Lines {
-    fn add(&mut self, line: usize) {
-        if let Some(last) = self.0.last_mut() {
-            last.1 += 1;
-        } else {
-            self.0.push((line, 1));
-        }
-    }
-
-    fn get(&self, offset: usize) -> (usize, bool) {
-        let mut offset = offset;
-        for (line, run) in self.0.iter() {
-            if offset == 0 {
-                return (*line, true);
-            }
-
-            if offset < *run {
-                return (*line, false);
-            }
-
-            offset -= run;
-        }
-
-        unreachable!()
-    }
-}
-
-#[test]
-fn test_get_line() {
-    let lines = Lines(vec![(1_usize, 2_usize), (2_usize, 2_usize)]);
-    assert_eq!(lines.get(0), (1, true));
-    assert_eq!(lines.get(1), (1, false));
-    assert_eq!(lines.get(2), (2, true));
-    assert_eq!(lines.get(3), (2, false));
-}
-
 impl Chunk {
     pub fn write(&mut self, byte: u8, line: usize) {
         self.code.push(byte);
@@ -110,3 +69,45 @@ impl Chunk {
         offset + 2
     }
 }
+
+// Lines are stored using run-length encoding, where the first element is the line and the second
+// element the number of instructions that are associated with that line
+#[derive(Default, Debug)]
+struct Lines(std::vec::Vec<(usize, usize)>);
+
+impl Lines {
+    fn add(&mut self, line: usize) {
+        if let Some(last) = self.0.last_mut() {
+            last.1 += 1;
+        } else {
+            self.0.push((line, 1));
+        }
+    }
+
+    fn get(&self, offset: usize) -> (usize, bool) {
+        let mut offset = offset;
+        for (line, run) in self.0.iter() {
+            if offset == 0 {
+                return (*line, true);
+            }
+
+            if offset < *run {
+                return (*line, false);
+            }
+
+            offset -= run;
+        }
+
+        unreachable!()
+    }
+}
+
+#[test]
+fn test_get_line() {
+    let lines = Lines(vec![(1_usize, 2_usize), (2_usize, 2_usize)]);
+    assert_eq!(lines.get(0), (1, true));
+    assert_eq!(lines.get(1), (1, false));
+    assert_eq!(lines.get(2), (2, true));
+    assert_eq!(lines.get(3), (2, false));
+}
+
