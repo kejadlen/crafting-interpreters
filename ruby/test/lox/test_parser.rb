@@ -90,6 +90,10 @@ class TestParser < Lox::Test
     assert_parsed <<~AST.chomp, :statement, "for(var i=0; i<3; i=i+1) print i;"
       (block (var i 0.0) (while (< (var i) 3.0) (block (print (var i)) (assign i (+ (var i) 1.0)))))
     AST
+
+    assert_parsed <<~AST.chomp, :statement, "for(var i=0; ; i=i+1) print i;"
+      (block (var i 0.0) (while true (block (print (var i)) (assign i (+ (var i) 1.0)))))
+    AST
   end
 
   private

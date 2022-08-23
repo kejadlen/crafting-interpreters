@@ -68,10 +68,10 @@ module Lox
                       expression_stmt
                     end
 
-      condition = !check?(:SEMICOLON) ? expression : Expr::Literal(true)
+      condition = check?(:SEMICOLON) ? Expr::Literal.new(true) : expression
       consume!(:SEMICOLON, "Expect ';' after loop condition.")
 
-      increment = !check?(:RIGHT_PAREN) ? expression : nil
+      increment = check?(:RIGHT_PAREN) ? nil : expression
       consume!(:RIGHT_PAREN, "Expect ')' after for clauses.")
 
       body = statement
