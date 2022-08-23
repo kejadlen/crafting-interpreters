@@ -11,6 +11,11 @@ module Lox
       @env = @globals
       @locals = {}
 
+      # We do **NOT** want struct equality for getting the depth of a local
+      # since we can have multiple locals referencing the same variable in
+      # different scopes on a single line.
+      @locals.compare_by_identity
+
       @globals.define("clock", Class.new {
         def arity = 0
         def call(*) = Time.now.to_f
@@ -30,11 +35,7 @@ module Lox
     def execute(stmt) = stmt.accept(self)
 
     def resolve(expr, depth)
-      # HACK We use the object id here since we do **NOT** want
-      # struct equality for getting the depth of a local since
-      # we can have multiple locals referencing the same variable
-      # in different scopes on a single line.
-      @locals[expr.object_id] = depth
+      @locals[expr] = depth
     end
 
     def visit_block(stmt)
@@ -129,8 +130,8 @@ module Lox
     end
 
     def lookup_var(name, expr)
-      if @locals.has_key?(expr.object_id)
-        distance = @locals.fetch(expr.object_id)
+      if @locals.has_key?(expr)
+        distance = @locals.fetch(expr)
         @env.get_at(distance, name.lexeme)
       else
         @globals.get(name)
@@ -140,8 +141,8 @@ module Lox
     def visit_assign(expr)
       value = evaluate(expr.value)
 
-      if @locals.has_key?(expr.object_id)
-        distance = @locals.fetch(expr.object_id)
+      if @locals.has_key?(expr)
+        distance = @locals.fetch(expr)
         @env.assign_at(distance, expr.name, value)
       else
         @globals.assign(expr.name, value)
