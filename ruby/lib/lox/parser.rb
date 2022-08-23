@@ -23,10 +23,25 @@ module Lox
     private
 
     def declaration
+      return class_decl if match?(:CLASS)
       return function("function") if match?(:FUN)
       return var_declaration if match?(:VAR)
 
       statement
+    end
+
+    def class_decl
+      name = consume!(:IDENTIFIER, "Expect class name.")
+      consume!(:LEFT_BRACE, "Expect '{' before class body.")
+
+      methods = []
+      until check?(:RIGHT_BRACE) || eot?
+        methods << function("method")
+      end
+
+      consume!(:RIGHT_BRACE, "Expect '}' after class body.")
+
+      Stmt::Class.new(name, methods)
     end
 
     def var_declaration

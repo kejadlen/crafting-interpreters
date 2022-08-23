@@ -13,8 +13,9 @@ module Lox
     end
 
     stmt :Block, :stmts
-    stmt :Function, :name, :params, :body
+    stmt :Class, :name, :methods
     stmt :Expr, :expr
+    stmt :Function, :name, :params, :body
     stmt :If, :cond, :then, :else
     stmt :Print, :expr
     stmt :Return, :keyword, :value

@@ -96,6 +96,22 @@ class TestParser < Lox::Test
     AST
   end
 
+  def test_class
+    assert_parsed <<~AST.chomp, :declaration, <<~SRC
+      (class Breakfast (function cook (print Eggs a-fryin'!)) (function serve (print (+ (+ Enjoy your breakfast,  (var who)) .))))
+    AST
+      class Breakfast {
+        cook() {
+          print "Eggs a-fryin'!";
+        }
+
+        serve(who) {
+          print "Enjoy your breakfast, " + who + ".";
+        }
+      }
+    SRC
+  end
+
   private
 
   def assert_parsed(expected, name, src)

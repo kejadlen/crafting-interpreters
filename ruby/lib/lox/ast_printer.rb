@@ -49,6 +49,14 @@ module Lox
       parenthesize("while", stmt.cond, stmt.body)
     end
 
+    def visit_class(stmt)
+      parenthesize("class #{stmt.name.lexeme}", *stmt.methods)
+    end
+
+    def visit_function(stmt)
+      parenthesize("function #{stmt.name.lexeme}", *stmt.body)
+    end
+
     private
 
     def parenthesize(name, *exprs)
