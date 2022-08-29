@@ -46,7 +46,12 @@ module Lox
 
     def visit_class(stmt)
       @env.define(stmt.name.lexeme, nil)
-      klass = LoxClass.new(stmt.name.lexeme)
+
+      methods = stmt.methods.to_h {|method|
+        [method.name.lexeme, Function.new(method, @env)]
+      }
+
+      klass = LoxClass.new(stmt.name.lexeme, methods)
       @env.assign(stmt.name, klass)
       nil
     end

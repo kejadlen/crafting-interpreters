@@ -345,6 +345,35 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_class_methods
+    assert_interpreted "Crunch crunch crunch!", <<~SRC
+      class Bacon {
+        eat() {
+          print "Crunch crunch crunch!";
+        }
+      }
+
+      Bacon().eat(); // Prints "Crunch crunch crunch!".
+    SRC
+
+    # assert_interpreted "", <<~SRC
+    #   class Person {
+    #     sayName() {
+    #       print this.name;
+    #     }
+    #   }
+
+    #   var jane = Person();
+    #   jane.name = "Jane";
+
+    #   var bill = Person();
+    #   bill.name = "Bill";
+
+    #   bill.sayName = jane.sayName;
+    #   bill.sayName(); // "Jane"
+    # SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

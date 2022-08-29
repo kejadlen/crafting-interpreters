@@ -26,6 +26,11 @@ module Lox
 
     def visit_class(stmt)
       declare(stmt.name)
+
+      stmt.methods.each do |method|
+        resolve_function(method, :METHOD)
+      end
+
       define(stmt.name)
       nil
     end
