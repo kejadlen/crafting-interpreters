@@ -136,6 +136,8 @@ module Lox
       value
     end
 
+    def visit_this(expr) = lookup_var(expr.keyword, expr)
+
     def visit_unary(expr)
       right = evaluate(expr.right)
 

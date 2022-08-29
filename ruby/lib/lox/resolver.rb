@@ -27,11 +27,16 @@ module Lox
     def visit_class(stmt)
       declare(stmt.name)
 
-      stmt.methods.each do |method|
-        resolve_function(method, :METHOD)
+      with_scope do
+        @scopes.last["this"] = true
+
+        stmt.methods.each do |method|
+          resolve_function(method, :METHOD)
+        end
+
+        define(stmt.name)
       end
 
-      define(stmt.name)
       nil
     end
 
@@ -95,6 +100,11 @@ module Lox
     def visit_set(expr)
       resolve(expr.value)
       resolve(expr.object)
+      nil
+    end
+
+    def visit_this(expr)
+      resolve_local(expr, expr.keyword)
       nil
     end
 

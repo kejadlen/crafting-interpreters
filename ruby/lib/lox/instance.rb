@@ -13,7 +13,7 @@ module Lox
       return @fields.fetch(name.lexeme) if @fields.has_key?(name.lexeme)
 
       method = @klass.find_method(name.lexeme)
-      return method unless method.nil?
+      return method.bind(self) unless method.nil?
 
       raise RuntimeError.new(name, "Undefined property '#{name.lexeme}'.")
     end

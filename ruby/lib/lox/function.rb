@@ -6,6 +6,12 @@ module Lox
       @decl, @closure = decl, closure
     end
 
+    def bind(instance)
+      env = Environment.new(@closure)
+      env.define("this", instance)
+      Function.new(@decl, env)
+    end
+
     def arity = @decl.params.size
 
     def call(interpreter, args)

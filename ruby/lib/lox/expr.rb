@@ -18,6 +18,7 @@ module Lox
     expr :Literal, :value
     expr :Logical, :left, :op, :right
     expr :Set, :object, :name, :value
+    expr :This, :keyword
     expr :Unary, :op, :right
     expr :Variable, :name
   end

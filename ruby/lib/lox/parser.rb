@@ -308,6 +308,7 @@ module Lox
       return Expr::Literal.new(true) if match?(:TRUE)
       return Expr::Literal.new(nil) if match?(:NIL)
       return Expr::Literal.new(prev.literal) if match?(:NUMBER, :STRING)
+      return Expr::This.new(prev) if match?(:THIS)
       return Expr::Variable.new(prev) if match?(:IDENTIFIER)
 
       if match?(:LEFT_PAREN)

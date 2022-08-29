@@ -356,22 +356,50 @@ class TestInterpreter < Lox::Test
       Bacon().eat(); // Prints "Crunch crunch crunch!".
     SRC
 
-    # assert_interpreted "", <<~SRC
-    #   class Person {
-    #     sayName() {
-    #       print this.name;
-    #     }
-    #   }
+    assert_interpreted "The German chocolate cake is delicious!", <<~SRC
+      class Cake {
+        taste() {
+          var adjective = "delicious";
+          print "The " + this.flavor + " cake is " + adjective + "!";
+        }
+      }
 
-    #   var jane = Person();
-    #   jane.name = "Jane";
+      var cake = Cake();
+      cake.flavor = "German chocolate";
+      cake.taste(); // Prints "The German chocolate cake is delicious!".
+    SRC
 
-    #   var bill = Person();
-    #   bill.name = "Bill";
+    assert_interpreted "Thing instance", <<~SRC
+      class Thing {
+        getCallback() {
+          fun localFunction() {
+            print this;
+          }
 
-    #   bill.sayName = jane.sayName;
-    #   bill.sayName(); // "Jane"
-    # SRC
+          return localFunction;
+        }
+      }
+
+      var callback = Thing().getCallback();
+      callback();
+    SRC
+
+    assert_interpreted "Jane", <<~SRC
+      class Person {
+        sayName() {
+          print this.name;
+        }
+      }
+
+      var jane = Person();
+      jane.name = "Jane";
+
+      var bill = Person();
+      bill.name = "Bill";
+
+      bill.sayName = jane.sayName;
+      bill.sayName(); // "Jane"
+    SRC
   end
 
   private
