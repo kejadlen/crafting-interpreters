@@ -402,6 +402,20 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_invalid_this
+    assert_raises Lox::ResolverError, "Can't use 'this' outside of a class." do
+      interpret("print this;")
+    end
+
+    assert_raises Lox::ResolverError, "Can't use 'this' outside of a class." do
+      interpret(<<~SRC)
+        fun notAMethod() {
+          print this;
+        }
+      SRC
+    end
+  end
+
   private
 
   def assert_interpreted(expected, src)

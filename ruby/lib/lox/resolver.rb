@@ -8,6 +8,7 @@ module Lox
 
       @scopes = []
       @current_func = :NONE
+      @current_class = :NONE
     end
 
     def resolve(*resolvees)
@@ -25,16 +26,18 @@ module Lox
     end
 
     def visit_class(stmt)
-      declare(stmt.name)
+      with_current_class(:CLASS) do
+        declare(stmt.name)
 
-      with_scope do
-        @scopes.last["this"] = true
+        with_scope do
+          @scopes.last["this"] = true
 
-        stmt.methods.each do |method|
-          resolve_function(method, :METHOD)
+          stmt.methods.each do |method|
+            resolve_function(method, :METHOD)
+          end
+
+          define(stmt.name)
         end
-
-        define(stmt.name)
       end
 
       nil
@@ -104,6 +107,8 @@ module Lox
     end
 
     def visit_this(expr)
+      raise ResolverError.new(expr.keyword, "Can't use 'this' outside of a class.") if @current_class == :NONE
+
       resolve_local(expr, expr.keyword)
       nil
     end
@@ -161,6 +166,15 @@ module Lox
       yield
 
       @current_func = enclosing_func
+    end
+
+    def with_current_class(type)
+      enclosing_class = @current_class
+      @current_class = type
+
+      yield
+
+      @current_class = enclosing_class
     end
 
   end
