@@ -1,5 +1,6 @@
 require_relative "environment"
 require_relative "function"
+require_relative "lox_class"
 
 module Lox
   class Interpreter
@@ -40,6 +41,13 @@ module Lox
 
     def visit_block(stmt)
       execute_block(stmt.stmts, Environment.new(@env))
+      nil
+    end
+
+    def visit_class(stmt)
+      @env.define(stmt.name.lexeme, nil)
+      klass = LoxClass.new(stmt.name.lexeme)
+      @env.assign(stmt.name, klass)
       nil
     end
 

@@ -306,6 +306,36 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_class
+    assert_interpreted "", <<~SRC
+      class Breakfast {
+        cook() {
+          print "Eggs a-fryin'!";
+        }
+
+        serve(who) {
+          print "Enjoy your breakfast, " + who + ".";
+        }
+      }
+    SRC
+
+    assert_interpreted "DevonshireCream", <<~SRC
+      class DevonshireCream {
+        serveOn() {
+          return "Scones";
+        }
+      }
+
+      print DevonshireCream; // Prints "DevonshireCream".
+    SRC
+
+    assert_interpreted "Bagel instance", <<~SRC
+      class Bagel {}
+      var bagel = Bagel();
+      print bagel; // Prints "Bagel instance".
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

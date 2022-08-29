@@ -24,6 +24,12 @@ module Lox
       nil
     end
 
+    def visit_class(stmt)
+      declare(stmt.name)
+      define(stmt.name)
+      nil
+    end
+
     def visit_expr(stmt) = resolve(stmt.expr)
 
     def visit_function(stmt)
