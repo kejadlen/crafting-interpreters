@@ -16,7 +16,8 @@ module Lox
         statements << declaration
       end
       statements
-    rescue ParseError
+    rescue ParseError => e
+      $stderr.puts e.message
       synchronize!
     end
 
@@ -172,16 +173,19 @@ module Lox
     def assignment
       expr = or_
 
-      if match?(:EQUAL)
-        eq = prev
-        value = assignment
+      return expr unless match?(:EQUAL)
 
-        raise ParseError.new(eq, "Invalid assignment target.") unless expr.instance_of?(Expr::Variable)
+      eq = prev
+      value = assignment
 
-        return Expr::Assign.new(expr.name, value)
+      case expr
+      when Expr::Variable
+        Expr::Assign.new(expr.name, value)
+      when Expr::Get
+        Expr::Set.new(expr.object, expr.name, value)
+      else
+        raise ParseError.new(eq, "Invalid assignment target.")
       end
-
-      expr
     end
 
     def or_
@@ -272,6 +276,9 @@ module Lox
       loop do
         if match?(:LEFT_PAREN)
           expr = finish_call(expr)
+        elsif match?(:DOT)
+          name = consume!(:IDENTIFIER, "Expect property name after '.'.")
+          expr = Expr::Get.new(expr, name)
         else
           break
         end

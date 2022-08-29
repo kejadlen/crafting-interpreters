@@ -336,6 +336,15 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_set
+    assert_interpreted "bar", <<~SRC
+      class Bagel {}
+      var bagel = Bagel();
+      bagel.foo = "bar";
+      print bagel.foo;
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

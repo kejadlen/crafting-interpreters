@@ -13,9 +13,11 @@ module Lox
     expr :Assign, :name, :value
     expr :Binary, :left, :op, :right
     expr :Call, :callee, :paren, :args
+    expr :Get, :object, :name
     expr :Grouping, :expr
     expr :Literal, :value
     expr :Logical, :left, :op, :right
+    expr :Set, :object, :name, :value
     expr :Unary, :op, :right
     expr :Variable, :name
   end

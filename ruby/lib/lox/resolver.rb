@@ -77,9 +77,22 @@ module Lox
 
     def visit_binary(expr) = resolve(expr.left, expr.right)
     def visit_call(expr) = resolve(expr.callee, *expr.args)
+
+    def visit_get(expr)
+      resolve(expr.object)
+      nil
+    end
+
     def visit_grouping(expr) = resolve(expr.expr)
     def visit_literal(expr) = nil
     def visit_logical(expr) = resolve(expr.left, expr.right)
+
+    def visit_set(expr)
+      resolve(expr.value)
+      resolve(expr.object)
+      nil
+    end
+
     def visit_unary(expr) = resolve(expr.right)
 
     private

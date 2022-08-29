@@ -121,6 +121,16 @@ module Lox
       evaluate(expr.right)
     end
 
+    def visit_set(expr)
+      object = evaluate(expr.object)
+
+      raise RuntimeError.new(expr.name, "Only instances have fields.") unless object.is_a?(Instance)
+
+      value = evaluate(expr.value)
+      object.set(expr.name, value)
+      value
+    end
+
     def visit_unary(expr)
       right = evaluate(expr.right)
 
@@ -204,6 +214,13 @@ module Lox
       raise RuntimeError.new(expr.paren, "Expected #{func.arity} arguments but got #{args.size}.") unless args.size == func.arity
 
       func.call(self, args)
+    end
+
+    def visit_get(expr)
+      object = evaluate(expr.object)
+      raise RuntimeError.new(expr.name, "Only instances have properties.") unless object.is_a?(Instance)
+
+      object.get(expr.name)
     end
 
     private
