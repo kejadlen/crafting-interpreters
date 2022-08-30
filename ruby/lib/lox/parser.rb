@@ -33,6 +33,14 @@ module Lox
 
     def class_decl
       name = consume!(:IDENTIFIER, "Expect class name.")
+
+      superclass = if match?(:LESS)
+                     consume!(:IDENTIFIER, "Expect superclass name.")
+                     Expr::Variable.new(prev)
+                   else
+                     nil
+                   end
+
       consume!(:LEFT_BRACE, "Expect '{' before class body.")
 
       methods = []
@@ -42,7 +50,7 @@ module Lox
 
       consume!(:RIGHT_BRACE, "Expect '}' after class body.")
 
-      Stmt::Class.new(name, methods)
+      Stmt::Class.new(name, superclass, methods)
     end
 
     def var_declaration

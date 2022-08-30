@@ -45,13 +45,21 @@ module Lox
     end
 
     def visit_class(stmt)
+      superclass = if stmt.superclass
+                     superclass = evaluate(stmt.superclass)
+                     raise RuntimeError.new(stmt.superclass.name, "Superclass must be a class.") unless superclass.is_a?(LoxClass)
+                     superclass
+                   else
+                     nil
+                   end
+
       @env.define(stmt.name.lexeme, nil)
 
       methods = stmt.methods.to_h {|method|
         [method.name.lexeme, Function.new(method, @env, method.name.lexeme == "init")]
       }
 
-      klass = LoxClass.new(stmt.name.lexeme, methods)
+      klass = LoxClass.new(stmt.name.lexeme, superclass, methods)
       @env.assign(stmt.name, klass)
       nil
     end

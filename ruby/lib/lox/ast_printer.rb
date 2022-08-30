@@ -50,7 +50,8 @@ module Lox
     end
 
     def visit_class(stmt)
-      parenthesize("class #{stmt.name.lexeme}", *stmt.methods)
+      exprs = [stmt.superclass, *stmt.methods].compact
+      parenthesize("class #{stmt.name.lexeme}", *exprs)
     end
 
     def visit_function(stmt)

@@ -28,6 +28,12 @@ module Lox
     def visit_class(stmt)
       with_current_class(:CLASS) do
         declare(stmt.name)
+        define(stmt.name)
+
+        if stmt.superclass
+          raise ResolverError.new(stmt.superclass.name, "A class can't inherit from itself.") if stmt.name.lexeme == stmt.superclass.name.lexeme
+          resolve(stmt.superclass)
+        end
 
         with_scope do
           @scopes.last["this"] = true
@@ -36,8 +42,6 @@ module Lox
             decl = method.name.lexeme == "init" ? :INIT : :METHOD
             resolve_function(method, decl)
           end
-
-          define(stmt.name)
         end
       end
 

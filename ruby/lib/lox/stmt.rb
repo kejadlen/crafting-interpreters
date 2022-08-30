@@ -13,7 +13,7 @@ module Lox
     end
 
     stmt :Block, :stmts
-    stmt :Class, :name, :methods
+    stmt :Class, :name, :superclass, :methods
     stmt :Expr, :expr
     stmt :Function, :name, :params, :body
     stmt :If, :cond, :then, :else

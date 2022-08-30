@@ -5,8 +5,8 @@ module Lox
 
     attr_reader :name
 
-    def initialize(name, methods)
-      @name, @methods = name, methods
+    def initialize(name, superclass, methods)
+      @name, @superclass, @methods = name, superclass, methods
     end
 
     def find_method(name) = @methods[name]

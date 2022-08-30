@@ -451,6 +451,25 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_inheritance
+    assert_interpreted "", <<~SRC
+      class Doughnut {}
+      class BostonCream < Doughnut {}
+    SRC
+
+    assert_raises Lox::ResolverError do
+      interpret("class Oops < Oops {}")
+    end
+
+    assert_raises Lox::RuntimeError do
+      interpret(<<~SRC)
+        var NotAClass = "I am totally not a class";
+
+        class Subclass < NotAClass {} // ?!
+      SRC
+    end
+  end
+
   private
 
   def assert_interpreted(expected, src)
