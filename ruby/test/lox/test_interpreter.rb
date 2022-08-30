@@ -431,6 +431,24 @@ class TestInterpreter < Lox::Test
       var foo = Foo();
       print foo.init();
     SRC
+
+    assert_raises Lox::ResolverError do
+      interpret(<<~SRC)
+        class Foo {
+          init() {
+            return "something else";
+          }
+        }
+      SRC
+    end
+
+    assert_interpreted "", <<~SRC
+      class Foo {
+        init() {
+          return;
+        }
+      }
+    SRC
   end
 
   private

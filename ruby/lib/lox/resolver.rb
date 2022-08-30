@@ -33,7 +33,8 @@ module Lox
           @scopes.last["this"] = true
 
           stmt.methods.each do |method|
-            resolve_function(method, :METHOD)
+            decl = method.name.lexeme == "init" ? :INIT : :METHOD
+            resolve_function(method, decl)
           end
 
           define(stmt.name)
@@ -59,9 +60,15 @@ module Lox
     end
 
     def visit_print(stmt) = resolve(stmt.expr)
+
     def visit_return(stmt)
       raise ResolverError.new(stmt.keyword, "Can't return from top-level code.") if @current_func == :NONE
-      resolve(stmt.value) if stmt.value
+
+      return unless stmt.value
+
+      raise ResolverError.new(stmt.keyword, "Can't return a value from an initializer.") if @current_func == :INIT
+
+      resolve(stmt.value)
     end
 
     def visit_var(stmt)
