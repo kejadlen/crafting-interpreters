@@ -48,7 +48,7 @@ module Lox
       @env.define(stmt.name.lexeme, nil)
 
       methods = stmt.methods.to_h {|method|
-        [method.name.lexeme, Function.new(method, @env)]
+        [method.name.lexeme, Function.new(method, @env, method.name.lexeme == "init")]
       }
 
       klass = LoxClass.new(stmt.name.lexeme, methods)
@@ -73,7 +73,7 @@ module Lox
     end
 
     def visit_function(stmt)
-      function = Function.new(stmt, @env)
+      function = Function.new(stmt, @env, false)
       @env.define(stmt.name.lexeme, function)
       nil
     end

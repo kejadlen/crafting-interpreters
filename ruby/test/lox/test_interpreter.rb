@@ -416,6 +416,23 @@ class TestInterpreter < Lox::Test
     end
   end
 
+  def test_init
+    assert_interpreted <<~EXPECTED.chomp, <<~SRC
+      Foo instance
+      Foo instance
+      Foo instance
+    EXPECTED
+      class Foo {
+        init() {
+          print this;
+        }
+      }
+
+      var foo = Foo();
+      print foo.init();
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)
