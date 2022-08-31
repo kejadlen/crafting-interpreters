@@ -484,6 +484,28 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_calling_superclass_methods
+    assert_interpreted <<~OUT, <<~SRC
+      Fry until golden brown.
+      Pipe full of custard and coat with chocolate.
+    OUT
+      class Doughnut {
+        cook() {
+          print "Fry until golden brown.";
+        }
+      }
+
+      class BostonCream < Doughnut {
+        cook() {
+          super.cook();
+          print "Pipe full of custard and coat with chocolate.";
+        }
+      }
+
+      BostonCream().cook();
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

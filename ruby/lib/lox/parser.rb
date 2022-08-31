@@ -316,6 +316,14 @@ module Lox
       return Expr::Literal.new(true) if match?(:TRUE)
       return Expr::Literal.new(nil) if match?(:NIL)
       return Expr::Literal.new(prev.literal) if match?(:NUMBER, :STRING)
+
+      if match?(:SUPER)
+        keyword = prev
+        consume!(:DOT, "Expect '.' after 'super'.")
+        method = consume!(:IDENTIFIER, "Expect superclass method name.")
+        return Expr::Super.new(keyword, method)
+      end
+
       return Expr::This.new(prev) if match?(:THIS)
       return Expr::Variable.new(prev) if match?(:IDENTIFIER)
 
