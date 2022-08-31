@@ -470,6 +470,20 @@ class TestInterpreter < Lox::Test
     end
   end
 
+  def test_inheriting_methods
+    assert_interpreted "Fry until golden brown.", <<~SRC
+      class Doughnut {
+        cook() {
+          print "Fry until golden brown.";
+        }
+      }
+
+      class BostonCream < Doughnut {}
+
+      BostonCream().cook();
+    SRC
+  end
+
   private
 
   def assert_interpreted(expected, src)

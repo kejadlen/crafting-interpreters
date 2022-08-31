@@ -9,7 +9,10 @@ module Lox
       @name, @superclass, @methods = name, superclass, methods
     end
 
-    def find_method(name) = @methods[name]
+    def find_method(name)
+      @methods.fetch(name) { @superclass&.find_method(name) }
+    end
+
     def to_s = name
 
     def call(interpreter, args)
