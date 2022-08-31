@@ -30,17 +30,20 @@ module Lox
         declare(stmt.name)
         define(stmt.name)
 
-        if stmt.superclass
-          raise ResolverError.new(stmt.superclass.name, "A class can't inherit from itself.") if stmt.name.lexeme == stmt.superclass.name.lexeme
-          resolve(stmt.superclass)
-        end
+        with_superclass_scope = if stmt.superclass
+                                  raise ResolverError.new(stmt.superclass.name, "A class can't inherit from itself.") if stmt.name.lexeme == stmt.superclass.name.lexeme
+                                  resolve(stmt.superclass)
+                                  ->(&block) { with_scope(super: true) { block.call } }
+                                else
+                                  ->(&block) { block.call }
+                                end
 
-        with_scope do
-          @scopes.last["this"] = true
-
-          stmt.methods.each do |method|
-            decl = method.name.lexeme == "init" ? :INIT : :METHOD
-            resolve_function(method, decl)
+        with_superclass_scope.call do
+          with_scope(this: true) do
+            stmt.methods.each do |method|
+              decl = method.name.lexeme == "init" ? :INIT : :METHOD
+              resolve_function(method, decl)
+            end
           end
         end
       end
@@ -117,6 +120,11 @@ module Lox
       nil
     end
 
+    def visit_super(expr)
+      resolve_local(expr, expr.keyword)
+      nil
+    end
+
     def visit_this(expr)
       raise ResolverError.new(expr.keyword, "Can't use 'this' outside of a class.") if @current_class == :NONE
 
@@ -128,8 +136,8 @@ module Lox
 
     private
 
-    def with_scope
-      @scopes.push({})
+    def with_scope(scope={})
+      @scopes.push(scope.transform_keys(&:to_s))
       yield
       @scopes.pop
     end

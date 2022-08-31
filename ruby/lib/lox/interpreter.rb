@@ -55,11 +55,18 @@ module Lox
 
       @env.define(stmt.name.lexeme, nil)
 
+      if superclass
+        @env = Environment.new(@env)
+        @env.define("super", superclass)
+      end
+
       methods = stmt.methods.to_h {|method|
         [method.name.lexeme, Function.new(method, @env, method.name.lexeme == "init")]
       }
 
       klass = LoxClass.new(stmt.name.lexeme, superclass, methods)
+      @env = @env.enclosing if superclass
+
       @env.assign(stmt.name, klass)
       nil
     end
@@ -142,6 +149,16 @@ module Lox
       value = evaluate(expr.value)
       object.set(expr.name, value)
       value
+    end
+
+    def visit_super(expr)
+      distance = @locals.fetch(expr)
+      superclass = @env.get_at(distance, "super")
+      object = @env.get_at(distance-1, "this")
+
+      method = superclass.find_method(expr.method.lexeme)
+      raise RuntimeError.new(expr.method, "Undefined property '#{expr.method.lexeme}'.") if method.nil?
+      method.bind(object)
     end
 
     def visit_this(expr) = lookup_var(expr.keyword, expr)

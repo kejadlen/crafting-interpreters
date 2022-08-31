@@ -485,7 +485,7 @@ class TestInterpreter < Lox::Test
   end
 
   def test_calling_superclass_methods
-    assert_interpreted <<~OUT, <<~SRC
+    assert_interpreted <<~OUT.chomp, <<~SRC
       Fry until golden brown.
       Pipe full of custard and coat with chocolate.
     OUT
@@ -503,6 +503,28 @@ class TestInterpreter < Lox::Test
       }
 
       BostonCream().cook();
+    SRC
+
+    assert_interpreted "A method", <<~SRC
+      class A {
+        method() {
+          print "A method";
+        }
+      }
+
+      class B < A {
+        method() {
+          print "B method";
+        }
+
+        test() {
+          super.method();
+        }
+      }
+
+      class C < B {}
+
+      C().test();
     SRC
   end
 
