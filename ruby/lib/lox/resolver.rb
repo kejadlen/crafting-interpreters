@@ -32,6 +32,7 @@ module Lox
 
         with_superclass_scope = if stmt.superclass
                                   raise ResolverError.new(stmt.superclass.name, "A class can't inherit from itself.") if stmt.name.lexeme == stmt.superclass.name.lexeme
+                                  @current_class = :SUBCLASS
                                   resolve(stmt.superclass)
                                   ->(&block) { with_scope(super: true) { block.call } }
                                 else
@@ -121,6 +122,9 @@ module Lox
     end
 
     def visit_super(expr)
+      raise ResolverError.new(expr.keyword, "Can't use 'super' outside of a class.") if @current_class == :NONE
+      raise ResolverError.new(expr.keyword, "Can't use 'super' in a class with no superclass.") if @current_class != :SUBCLASS
+
       resolve_local(expr, expr.keyword)
       nil
     end

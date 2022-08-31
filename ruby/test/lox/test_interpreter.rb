@@ -528,6 +528,23 @@ class TestInterpreter < Lox::Test
     SRC
   end
 
+  def test_invalid_super
+    assert_raises Lox::ResolverError do
+      interpret(<<~SRC)
+        class Eclair {
+          cook() {
+            super.cook();
+            print "Pipe full of crème pâtissière.";
+          }
+        }
+      SRC
+    end
+
+    assert_raises Lox::ResolverError do
+      interpret("super.notEvenInAClass();")
+    end
+  end
+
   private
 
   def assert_interpreted(expected, src)
