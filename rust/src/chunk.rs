@@ -15,7 +15,7 @@ type Value = f32;
 
 #[derive(Default)]
 pub struct Chunk {
-    code: Vec<u8>,
+    pub code: Vec<u8>,
     constants: Vec<Value>,
     lines: Lines,
 }
@@ -74,7 +74,7 @@ impl Chunk {
     }
 
     fn constant_instruction(&self, name: &str, offset: usize) -> usize {
-        let constant_index = self.code[offset+1];
+        let constant_index = self.code[offset + 1];
         let value = self.constants[constant_index as usize];
         println!("{:<16} {:>4} '{}'", name, constant_index, value);
         offset + 2
@@ -82,7 +82,7 @@ impl Chunk {
 
     fn constant_long_instruction(&self, name: &str, offset: usize) -> usize {
         let index_len = mem::size_of::<usize>();
-        let index_bytes = &self.code[offset+1..offset+1+index_len];
+        let index_bytes = &self.code[offset + 1..offset + 1 + index_len];
 
         let (int_bytes, _) = index_bytes.split_at(std::mem::size_of::<usize>());
         let constant_index = usize::from_ne_bytes(int_bytes.try_into().unwrap());
@@ -108,7 +108,7 @@ fn test_constant_long() {
 
 // Lines are stored using run-length encoding, where the first element is the line and the second
 // element the number of instructions that are associated with that line
-#[derive(Default, Debug)]
+#[derive(Debug, Default)]
 struct Lines(std::vec::Vec<(usize, usize)>);
 
 impl Lines {
@@ -146,4 +146,3 @@ fn test_get_line() {
     assert_eq!(lines.get(2), (2, true));
     assert_eq!(lines.get(3), (2, false));
 }
-

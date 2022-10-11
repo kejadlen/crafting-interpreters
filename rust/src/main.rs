@@ -1,7 +1,9 @@
 use chunk::{Chunk, OpCode};
+use vm::VM;
 
 pub mod chunk;
 pub mod vec;
+pub mod vm;
 
 fn main() {
     let mut chunk = Chunk::default();
@@ -16,5 +18,8 @@ fn main() {
 
     // chunk.write_constant(0.0, 123);
 
-    chunk.disassemble("test chunk");
+    // chunk.disassemble("test chunk");
+
+    let vm = VM::new(chunk);
+    vm.interpret();
 }
